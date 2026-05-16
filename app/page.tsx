@@ -88,11 +88,12 @@ export default function Home() {
             <div className="glass relative mx-auto max-w-[520px] rounded-[2rem] p-4">
               <div className="relative h-[430px] overflow-hidden rounded-[1.5rem]">
                 <Image
-                  src="https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&w=1400&q=85"
+                  src="/images/white-google-card.png"
                   alt="Premium smart card and phone product setup"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 520px"
+                  quality={100}
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
@@ -121,9 +122,18 @@ export default function Home() {
         <div className="mx-auto mt-12 grid max-w-7xl gap-5 md:grid-cols-3">
           {products.slice(0, 3).map((product) => (
             <Link key={product.id} href="/products" className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.045]">
-              <div className="relative h-64 overflow-hidden">
-                <Image src={product.image} alt={product.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                <div className={`absolute inset-0 bg-gradient-to-t ${product.accent}`} />
+              <div className="relative h-64 overflow-hidden bg-white">
+                <Image
+                  src={product.image}
+                  alt={product.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  quality={100}
+                  className={`transition duration-500 group-hover:scale-105 ${
+                    product.id === "instagram-card" || product.id === "facebook-card" ? "object-contain p-3" : "object-cover"
+                  }`}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
               </div>
               <div className="p-5">
                 <p className="text-xs uppercase tracking-[0.24em] text-pulse">{product.category}</p>
@@ -159,10 +169,11 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2">
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
             <Image
-              src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=1400&q=85"
+              src="/images/google-review-stand.jpg"
               alt="Phone opening a web profile without an app"
               width={1400}
               height={950}
+              quality={100}
               className="h-[420px] w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />

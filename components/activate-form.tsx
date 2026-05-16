@@ -18,7 +18,17 @@ type ApiResponse = {
   };
 };
 
-export function ActivateForm() {
+type ActivateFormProps = {
+  claimToken?: string;
+  detectedCard?: {
+    id: string;
+    label: string;
+    database: string;
+    activated: boolean;
+  } | null;
+};
+
+export function ActivateForm({ claimToken = "", detectedCard = null }: ActivateFormProps) {
   const [form, setForm] = useState<FormState>({
     activationCode: "",
     redirectUrl: ""
@@ -27,8 +37,8 @@ export function ActivateForm() {
   const [result, setResult] = useState<ApiResponse | null>(null);
 
   const isValid = useMemo(() => {
-    return form.activationCode.trim().length >= 6 && form.redirectUrl.trim().includes(".");
-  }, [form]);
+    return (claimToken || form.activationCode.trim().length >= 6) && form.redirectUrl.trim().includes(".");
+  }, [claimToken, form]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,7 +47,7 @@ export function ActivateForm() {
     if (!isValid) {
       setResult({
         ok: false,
-        message: "Add a valid activation code and destination URL."
+        message: "Add a valid destination URL."
       });
       return;
     }
@@ -50,7 +60,10 @@ export function ActivateForm() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          ...form,
+          claimToken
+        })
       });
       const payload = (await response.json()) as ApiResponse;
       setResult(payload);
@@ -67,21 +80,27 @@ export function ActivateForm() {
   return (
     <div className="glass rounded-[2rem] p-5 md:p-8">
       <div className="rounded-3xl border border-white/10 bg-black/24 p-4">
-        <p className="text-sm font-semibold">Try demo code</p>
-        <p className="mt-1 text-sm text-white/56">Use PULSE-0002 with any destination URL to see a successful activation.</p>
+        <p className="text-sm font-semibold">{detectedCard ? "Card detected" : "Try demo claim link"}</p>
+        <p className="mt-1 text-sm text-white/56">
+          {detectedCard
+            ? `${detectedCard.label} (${detectedCard.id}) is ready for activation.`
+            : "Open /activate?claim=google-claim-002-ptg to test automatic card detection."}
+        </p>
       </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-5">
-        <label className="block">
-          <span className="text-sm font-medium text-white/82">Activation code</span>
-          <input
-            value={form.activationCode}
-            onChange={(event) => setForm((current) => ({ ...current, activationCode: event.target.value }))}
-            className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
-            placeholder="PULSE-0002"
-            autoComplete="off"
-          />
-        </label>
+        {!claimToken ? (
+          <label className="block">
+            <span className="text-sm font-medium text-white/82">Activation code</span>
+            <input
+              value={form.activationCode}
+              onChange={(event) => setForm((current) => ({ ...current, activationCode: event.target.value }))}
+              className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
+              placeholder="GOOGLE-002"
+              autoComplete="off"
+            />
+          </label>
+        ) : null}
 
         <label className="block">
           <span className="text-sm font-medium text-white/82">Destination URL</span>

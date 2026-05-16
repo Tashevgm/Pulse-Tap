@@ -1,62 +1,83 @@
 export type CardType =
   | "google-review"
   | "instagram"
-  | "tiktok"
-  | "wifi"
-  | "business-card"
-  | "restaurant";
+  | "facebook"
+  | "google-review-stand";
+
+export type CardDatabase = "google" | "instagram" | "facebook";
 
 export type Card = {
   id: string;
   activationCode: string;
+  claimToken: string;
   redirectUrl: string;
   activated: boolean;
   type: CardType;
+  database: CardDatabase;
+  ownerUserId?: string;
   label: string;
   taps: number;
   updatedAt: string;
 };
 
-const globalForCards = globalThis as unknown as {
-  pulseTapCards?: Card[];
-};
-
-export const mockCards: Card[] =
-  globalForCards.pulseTapCards ??
-  [
-    {
-      id: "PT0001",
-      activationCode: "PULSE-0001",
-      redirectUrl: "https://www.google.com/search?q=Pixel+Solutions+Ltd",
-      activated: true,
-      type: "google-review",
-      label: "Google review counter card",
-      taps: 128,
-      updatedAt: "2026-05-01"
-    },
-    {
-      id: "PT0002",
-      activationCode: "PULSE-0002",
+function createSeedCards({
+  database,
+  prefix,
+  activationPrefix,
+  type,
+  label,
+  activeRedirect
+}: {
+  database: CardDatabase;
+  prefix: string;
+  activationPrefix: string;
+  type: CardType;
+  label: string;
+  activeRedirect: string;
+}): Card[] {
+  return Array.from({ length: 10 }, (_, index) => {
+    const number = String(index + 1).padStart(3, "0");
+    return {
+      id: `${prefix}${number}`,
+      activationCode: `${activationPrefix}-${number}`,
+      claimToken: `${database}-claim-${number.toLowerCase()}-${prefix.toLowerCase()}`,
       redirectUrl: "",
       activated: false,
-      type: "business-card",
-      label: "Founder NFC business card",
+      type,
+      database,
+      label: `${label} ${number}`,
       taps: 0,
       updatedAt: "2026-05-08"
-    },
-    {
-      id: "PT0003",
-      activationCode: "PULSE-0003",
-      redirectUrl: "https://pulse-menu.com",
-      activated: true,
-      type: "restaurant",
-      label: "Restaurant table stand",
-      taps: 74,
-      updatedAt: "2026-05-11"
-    }
-  ];
+    };
+  });
+}
 
-globalForCards.pulseTapCards = mockCards;
+export const seedCardDatabases: Record<CardDatabase, Card[]> = {
+  google: createSeedCards({
+    database: "google",
+    prefix: "PTG",
+    activationPrefix: "GOOGLE",
+    type: "google-review",
+    label: "Google review card",
+    activeRedirect: "https://www.google.com/search?q=Pixel+Solutions+Ltd"
+  }),
+  instagram: createSeedCards({
+    database: "instagram",
+    prefix: "PTI",
+    activationPrefix: "INSTAGRAM",
+    type: "instagram",
+    label: "Instagram card",
+    activeRedirect: "https://www.instagram.com"
+  }),
+  facebook: createSeedCards({
+    database: "facebook",
+    prefix: "PTF",
+    activationPrefix: "FACEBOOK",
+    type: "facebook",
+    label: "Facebook card",
+    activeRedirect: "https://www.facebook.com"
+  })
+};
 
 export function normalizeUrl(url: string) {
   const trimmed = url.trim();
@@ -70,13 +91,4 @@ export function normalizeUrl(url: string) {
   }
 
   return `https://${trimmed}`;
-}
-
-export function findCardByActivationCode(code: string) {
-  const normalized = code.trim().toUpperCase();
-  return mockCards.find((card) => card.activationCode.toUpperCase() === normalized);
-}
-
-export function findCardById(id: string) {
-  return mockCards.find((card) => card.id.toUpperCase() === id.trim().toUpperCase());
 }

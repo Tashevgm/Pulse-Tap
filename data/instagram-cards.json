@@ -1,0 +1,122 @@
+[
+    {
+        "id":  "PTI001",
+        "activationCode":  "INSTAGRAM-001",
+        "claimToken":  "instagram-claim-001-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 001",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI002",
+        "activationCode":  "INSTAGRAM-002",
+        "claimToken":  "instagram-claim-002-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 002",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI003",
+        "activationCode":  "INSTAGRAM-003",
+        "claimToken":  "instagram-claim-003-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 003",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI004",
+        "activationCode":  "INSTAGRAM-004",
+        "claimToken":  "instagram-claim-004-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 004",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI005",
+        "activationCode":  "INSTAGRAM-005",
+        "claimToken":  "instagram-claim-005-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 005",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI006",
+        "activationCode":  "INSTAGRAM-006",
+        "claimToken":  "instagram-claim-006-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 006",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI007",
+        "activationCode":  "INSTAGRAM-007",
+        "claimToken":  "instagram-claim-007-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 007",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI008",
+        "activationCode":  "INSTAGRAM-008",
+        "claimToken":  "instagram-claim-008-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 008",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI009",
+        "activationCode":  "INSTAGRAM-009",
+        "claimToken":  "instagram-claim-009-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 009",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    },
+    {
+        "id":  "PTI010",
+        "activationCode":  "INSTAGRAM-010",
+        "claimToken":  "instagram-claim-010-pti",
+        "redirectUrl":  "",
+        "activated":  false,
+        "type":  "instagram",
+        "database":  "instagram",
+        "label":  "Instagram card 010",
+        "taps":  0,
+        "updatedAt":  "2026-05-08"
+    }
+]

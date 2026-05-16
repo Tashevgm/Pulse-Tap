@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
-import { findCardByActivationCode, normalizeUrl } from "@/lib/cards";
+import { cookies } from "next/headers";
+import { normalizeUrl } from "@/lib/cards";
+import { activateCard, activateCardByClaimToken, findCardByActivationCode, findCardByClaimToken } from "@/lib/card-store";
+import { registerDemoGoogleUser } from "@/lib/user-store";
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       activationCode?: string;
+      claimToken?: string;
       redirectUrl?: string;
     };
 
     const activationCode = body.activationCode?.trim() ?? "";
+    const claimToken = body.claimToken?.trim() ?? "";
     const redirectUrl = normalizeUrl(body.redirectUrl ?? "");
 
-    if (!activationCode || !redirectUrl) {
+    if ((!activationCode && !claimToken) || !redirectUrl) {
       return NextResponse.json(
         {
           ok: false,
-          message: "Activation code and destination URL are required."
+          message: "Card claim or activation code and destination URL are required."
         },
         { status: 400 }
       );
@@ -44,31 +49,60 @@ export async function POST(request: Request) {
       );
     }
 
-    const card = findCardByActivationCode(activationCode);
+    const card = claimToken
+      ? await findCardByClaimToken(claimToken)
+      : await findCardByActivationCode(activationCode);
 
     if (!card) {
       return NextResponse.json(
         {
           ok: false,
-          message: "Activation code was not found. Check the printed code and try again."
+          message: "Card was not found. Tap or scan the card again."
         },
         { status: 404 }
       );
     }
 
-    card.redirectUrl = redirectUrl;
-    card.activated = true;
-    card.updatedAt = new Date().toISOString().slice(0, 10);
+    const cookieStore = await cookies();
+    let userId = cookieStore.get("pulsetap_user_id")?.value;
 
-    return NextResponse.json({
+    if (!userId) {
+      const user = await registerDemoGoogleUser();
+      userId = user.id;
+    }
+
+    const activatedCard = claimToken
+      ? await activateCardByClaimToken(claimToken, redirectUrl, userId)
+      : await activateCard(activationCode, redirectUrl, userId);
+
+    if (!activatedCard) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Card was not found. Tap or scan the card again."
+        },
+        { status: 404 }
+      );
+    }
+
+    const response = NextResponse.json({
       ok: true,
       message: "Your PulseTap product is active. NFC and QR traffic will now open the destination URL.",
       card: {
-        id: card.id,
-        redirectUrl: card.redirectUrl,
-        type: card.type
+        id: activatedCard.id,
+        redirectUrl: activatedCard.redirectUrl,
+        type: activatedCard.type
       }
     });
+
+    response.cookies.set("pulsetap_user_id", userId, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30
+    });
+
+    return response;
   } catch {
     return NextResponse.json(
       {

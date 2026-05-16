@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
-import { findCardById } from "@/lib/cards";
+import { findCardById, recordTap } from "@/lib/card-store";
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id") ?? "";
-  const card = findCardById(id);
+  const card = await findCardById(id);
 
   if (!card || !card.activated || !card.redirectUrl) {
-    return NextResponse.redirect(new URL("/activate", request.url));
+    const activateUrl = new URL("/activate", request.url);
+
+    if (card?.claimToken) {
+      activateUrl.searchParams.set("claim", card.claimToken);
+    }
+
+    return NextResponse.redirect(activateUrl);
   }
 
-  card.taps += 1;
+  await recordTap(card.id);
 
   return NextResponse.redirect(card.redirectUrl, {
     status: 302

@@ -12,6 +12,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pulsetap.co.uk"),
+  icons: {
+    icon: []
+  },
   title: {
     default: "PulseTap | Smart NFC + QR Products",
     template: "%s | PulseTap"

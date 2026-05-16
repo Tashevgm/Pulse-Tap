@@ -27,13 +27,21 @@ export function Header() {
           ))}
         </nav>
 
-        <Link
-          href="/activate"
-          className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
-        >
-          Activate
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/signup"
+            className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
+          >
+            Sign Up
+          </Link>
+          <Link
+            href="/activate"
+            className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
+          >
+            Activate
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </header>
   );

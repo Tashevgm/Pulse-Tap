@@ -1,0 +1,122 @@
+[
+  {
+    "id": "PTG001",
+    "activationCode": "GOOGLE-001",
+    "claimToken": "google-claim-001-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 001",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG002",
+    "activationCode": "GOOGLE-002",
+    "claimToken": "google-claim-002-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 002",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG003",
+    "activationCode": "GOOGLE-003",
+    "claimToken": "google-claim-003-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 003",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG004",
+    "activationCode": "GOOGLE-004",
+    "claimToken": "google-claim-004-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 004",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG005",
+    "activationCode": "GOOGLE-005",
+    "claimToken": "google-claim-005-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 005",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG006",
+    "activationCode": "GOOGLE-006",
+    "claimToken": "google-claim-006-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 006",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG007",
+    "activationCode": "GOOGLE-007",
+    "claimToken": "google-claim-007-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 007",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG008",
+    "activationCode": "GOOGLE-008",
+    "claimToken": "google-claim-008-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 008",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG009",
+    "activationCode": "GOOGLE-009",
+    "claimToken": "google-claim-009-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 009",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTG010",
+    "activationCode": "GOOGLE-010",
+    "claimToken": "google-claim-010-ptg",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "google-review",
+    "database": "google",
+    "label": "Google review card 010",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "user_demo_google",
+    "name": "PulseTap Demo User",
+    "email": "demo@pulsetap.co.uk",
+    "provider": "google",
+    "companyName": "Pixel Solutions Ltd",
+    "createdAt": "2026-05-16"
+  }
+]

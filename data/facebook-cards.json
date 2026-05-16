@@ -1,0 +1,122 @@
+[
+  {
+    "id": "PTF001",
+    "activationCode": "FACEBOOK-001",
+    "claimToken": "facebook-claim-001-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 001",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF002",
+    "activationCode": "FACEBOOK-002",
+    "claimToken": "facebook-claim-002-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 002",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF003",
+    "activationCode": "FACEBOOK-003",
+    "claimToken": "facebook-claim-003-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 003",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF004",
+    "activationCode": "FACEBOOK-004",
+    "claimToken": "facebook-claim-004-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 004",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF005",
+    "activationCode": "FACEBOOK-005",
+    "claimToken": "facebook-claim-005-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 005",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF006",
+    "activationCode": "FACEBOOK-006",
+    "claimToken": "facebook-claim-006-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 006",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF007",
+    "activationCode": "FACEBOOK-007",
+    "claimToken": "facebook-claim-007-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 007",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF008",
+    "activationCode": "FACEBOOK-008",
+    "claimToken": "facebook-claim-008-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 008",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF009",
+    "activationCode": "FACEBOOK-009",
+    "claimToken": "facebook-claim-009-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 009",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  },
+  {
+    "id": "PTF010",
+    "activationCode": "FACEBOOK-010",
+    "claimToken": "facebook-claim-010-ptf",
+    "redirectUrl": "",
+    "activated": false,
+    "type": "facebook",
+    "database": "facebook",
+    "label": "Facebook card 010",
+    "taps": 0,
+    "updatedAt": "2026-05-08"
+  }
+]

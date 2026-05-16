@@ -2,7 +2,7 @@ import {
   BadgeCheck,
   ChefHat,
   Instagram,
-  MessageCircleHeart,
+  Facebook,
   QrCode,
   Share2,
   Star,
@@ -26,7 +26,7 @@ export const products: Product[] = [
     title: "Google Review Card",
     category: "Google Review",
     description: "Send customers straight to your review page with a single tap or scan.",
-    image: "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1200&q=80",
+    image: "/images/white-google-card.png",
     accent: "from-pulse/35 to-volt/25",
     cta: "View review cards"
   },
@@ -35,27 +35,27 @@ export const products: Product[] = [
     title: "Instagram Tap Card",
     category: "Instagram",
     description: "Grow followers from counters, events and packaging without asking people to search.",
-    image: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=1200&q=80",
+    image: "/images/instagram-card.png",
     accent: "from-coral/35 to-pulse/20",
     cta: "Open Instagram cards"
   },
   {
-    id: "tiktok-card",
-    title: "TikTok Creator Card",
-    category: "TikTok",
-    description: "Turn real-world attention into profile visits for creators, venues and retail teams.",
-    image: "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?auto=format&fit=crop&w=1200&q=80",
+    id: "facebook-card",
+    title: "Facebook Tap Card",
+    category: "Facebook",
+    description: "Send customers straight to your Facebook page, reviews or latest social updates.",
+    image: "/images/facebook-card.png",
     accent: "from-white/25 to-pulse/25",
-    cta: "Explore TikTok cards"
+    cta: "Explore Facebook cards"
   },
   {
-    id: "wifi-connect-card",
-    title: "WiFi Connect Card",
-    category: "WiFi",
-    description: "Let guests connect to WiFi through a clean NFC and QR touchpoint.",
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80",
+    id: "google-review-stand",
+    title: "Google Review Stand",
+    category: "Google Review",
+    description: "Place a premium NFC and QR review stand at reception, tables or checkout.",
+    image: "/images/google-review-stand.jpg",
     accent: "from-volt/30 to-pulse/25",
-    cta: "See WiFi cards"
+    cta: "View review stands"
   },
   {
     id: "nfc-business-card",
@@ -67,20 +67,20 @@ export const products: Product[] = [
     cta: "Build your profile"
   },
   {
-    id: "restaurant-table-stand",
-    title: "Restaurant QR + NFC Stand",
-    category: "Restaurant Products",
-    description: "Launch menus, reviews, socials or WiFi from tables, counters and takeaway bags.",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
+    id: "instagram-follow-stand",
+    title: "Instagram Follow Us Stand",
+    category: "Instagram",
+    description: "Place an NFC and QR stand on counters or tables so customers can follow instantly.",
+    image: "/images/instagram-review-stand.jpg",
     accent: "from-coral/30 to-volt/20",
-    cta: "View restaurant products"
+    cta: "View Instagram stands"
   }
 ];
 
 export const categories = [
   { name: "Google Review", icon: Star, copy: "Collect reviews at the point of experience." },
   { name: "Instagram", icon: Instagram, copy: "Make following your brand instant." },
-  { name: "TikTok", icon: MessageCircleHeart, copy: "Convert attention into profile visits." },
+  { name: "Facebook", icon: Facebook, copy: "Connect customers to your Facebook presence." },
   { name: "WiFi", icon: Wifi, copy: "No typing passwords at the counter." },
   { name: "Business Cards", icon: Users, copy: "Share editable professional profiles." },
   { name: "Restaurant Products", icon: ChefHat, copy: "Menus, reviews and WiFi in one tap." }

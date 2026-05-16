@@ -25,10 +25,19 @@ export default function ProductsPage() {
         <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
             <article key={product.id} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.045]">
-              <div className="relative h-72 overflow-hidden">
-                <Image src={product.image} alt={product.title} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                <div className={`absolute inset-0 bg-gradient-to-t ${product.accent}`} />
-                <div className="absolute left-4 top-4 rounded-full border border-white/16 bg-black/36 px-3 py-1 text-xs font-medium backdrop-blur-xl">
+              <div className="relative h-72 overflow-hidden bg-white">
+                <Image
+                  src={product.image}
+                  alt={product.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  quality={100}
+                  className={`transition duration-500 group-hover:scale-105 ${
+                    product.id === "instagram-card" || product.id === "facebook-card" ? "object-contain p-3" : "object-cover"
+                  }`}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/42 via-transparent to-transparent" />
+                <div className="absolute left-4 top-4 rounded-full border border-white/18 bg-black/45 px-3 py-1 text-xs font-medium">
                   {product.category}
                 </div>
               </div>
