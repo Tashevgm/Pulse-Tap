@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { normalizeUrl } from "@/lib/cards";
 import { activateCard, activateCardByClaimToken, findCardByActivationCode, findCardByClaimToken } from "@/lib/card-repository";
-import { registerDemoGoogleUser } from "@/lib/user-store";
+import { ensureActivationProfile } from "@/lib/user-repository";
 
 export async function POST(request: Request) {
   try {
@@ -64,12 +64,7 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies();
-    let userId = cookieStore.get("pulsetap_user_id")?.value;
-
-    if (!userId) {
-      const user = await registerDemoGoogleUser();
-      userId = user.id;
-    }
+    const userId = await ensureActivationProfile(cookieStore.get("pulsetap_user_id")?.value);
 
     const activatedCard = claimToken
       ? await activateCardByClaimToken(claimToken, redirectUrl, userId)
