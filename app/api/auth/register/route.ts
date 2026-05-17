@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { registerEmailUser } from "@/lib/user-store";
+import { hasSupabaseEnv, createSupabaseServerClient } from "@/lib/supabase/server";
+import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +45,60 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+
+    if (hasSupabaseEnv() && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      const supabase = await createSupabaseServerClient();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            company_name: companyName || name
+          }
+        }
+      });
+
+      if (error) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: error.message
+          },
+          { status: 400 }
+        );
+      }
+
+      if (!data.user) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: "Could not create this account."
+          },
+          { status: 500 }
+        );
+      }
+
+      const profile = await upsertProfileForAuthUser(data.user);
+      const response = NextResponse.json({
+        ok: true,
+        user: {
+          id: profile.id,
+          name: profile.full_name,
+          email: profile.email,
+          companyName: profile.company_name
+        }
+      });
+
+      response.cookies.set("pulsetap_user_id", profile.id, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30
+      });
+
+      return response;
     }
 
     const result = await registerEmailUser({

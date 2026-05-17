@@ -1,16 +1,28 @@
 import { NextResponse } from "next/server";
-import { registerDemoGoogleUser } from "@/lib/user-store";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
-  const user = await registerDemoGoogleUser();
-  const response = NextResponse.redirect(new URL("/dashboard", request.url));
+  const requestUrl = new URL(request.url);
+  const supabase = await createSupabaseServerClient();
+  const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
+  const next = requestedNext.startsWith("/") ? requestedNext : "/dashboard";
+  const redirectTo = new URL("/api/auth/callback", requestUrl.origin);
+  redirectTo.searchParams.set("next", next);
 
-  response.cookies.set("pulsetap_user_id", user.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: redirectTo.toString(),
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent"
+      }
+    }
   });
 
-  return response;
+  if (error || !data.url) {
+    return NextResponse.redirect(new URL("/signup?error=google", requestUrl.origin));
+  }
+
+  return NextResponse.redirect(data.url);
 }

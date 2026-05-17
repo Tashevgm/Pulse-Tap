@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Box, Link2, Sparkles } from "lucide-react";
 import { ProductManager } from "@/components/product-manager";
 import { readCardsForUser } from "@/lib/card-repository";
-import { getUserById } from "@/lib/user-store";
+import { getCurrentProfile } from "@/lib/user-repository";
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
-  const userId = cookieStore.get("pulsetap_user_id")?.value ?? "";
-  const user = userId ? await getUserById(userId) : null;
-  const accountName = user?.companyName ?? "Pixel Solutions Ltd";
-  const accountEmail = user?.email ?? "demo@pulsetap.co.uk";
-  const cards = userId ? await readCardsForUser(userId) : [];
+  const cookieUserId = cookieStore.get("pulsetap_user_id")?.value ?? "";
+  const profile = await getCurrentProfile(cookieUserId);
+  const accountName = profile?.companyName ?? "PulseTap customer";
+  const accountEmail = profile?.email ?? "Sign in to manage your cards";
+  const cards = profile ? await readCardsForUser(profile.id) : [];
   const activeProducts = cards.filter((card) => card.activated).length;
   const totalTaps = cards.reduce((sum, card) => sum + card.taps, 0);
 
@@ -38,7 +38,9 @@ export default async function DashboardPage() {
           <div className="glass rounded-[2rem] p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-white/54">{user ? "Google account" : "Demo account"}</p>
+                <p className="text-sm text-white/54">
+                  {profile?.isAuthenticated ? "Signed in account" : "Activation profile"}
+                </p>
                 <h2 className="mt-1 text-2xl font-semibold">{accountName}</h2>
                 <p className="mt-2 text-sm leading-6 text-white/58">
                   {accountEmail} · Owner access · NFC and QR products · Editable redirects

@@ -5,7 +5,7 @@ import { SignUpForm } from "@/components/signup-form";
 
 export const metadata: Metadata = {
   title: "Sign Up",
-  description: "Create a PulseTap account with Google to manage NFC and QR products."
+  description: "Create a PulseTap account with Google or email to manage NFC and QR products."
 };
 
 export default function SignUpPage() {
@@ -15,7 +15,7 @@ export default function SignUpPage() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.34em] text-pulse">Create Account</p>
           <h1 className="mt-5 text-4xl font-semibold tracking-tight md:text-6xl">
-            Register with Google and manage every PulseTap product.
+            Register and manage every PulseTap product.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-white/66">
             Your account gives you access to activated cards, QR backups, editable redirects and profile tools.
@@ -24,7 +24,7 @@ export default function SignUpPage() {
             {[
               { icon: BadgeCheck, title: "All products", copy: "View cards and stands connected to your profile." },
               { icon: Smartphone, title: "No app required", copy: "Manage links from the browser." },
-              { icon: LockKeyhole, title: "Secure later", copy: "Ready to connect to Supabase Google Auth." }
+              { icon: LockKeyhole, title: "Secure access", copy: "Google login is powered by Supabase Auth." }
             ].map((item) => (
               <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.055] p-4">
                 <item.icon className="h-5 w-5 text-pulse" />
@@ -40,7 +40,7 @@ export default function SignUpPage() {
             <p className="text-sm font-semibold text-white/82">PulseTap account</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">Sign up</h2>
             <p className="mt-3 text-sm leading-6 text-white/58">
-              Local demo mode creates a test Google account and stores it in `data/users.json`.
+              Sign in with Google or create an account with email and password.
             </p>
           </div>
 
