@@ -1,11 +1,15 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
 
 type FormState = {
   activationCode: string;
   redirectUrl: string;
+  name: string;
+  email: string;
+  password: string;
 };
 
 type ApiResponse = {
@@ -20,6 +24,7 @@ type ApiResponse = {
 
 type ActivateFormProps = {
   claimToken?: string;
+  initialRedirectUrl?: string;
   detectedCard?: {
     id: string;
     label: string;
@@ -28,10 +33,13 @@ type ActivateFormProps = {
   } | null;
 };
 
-export function ActivateForm({ claimToken = "", detectedCard = null }: ActivateFormProps) {
+export function ActivateForm({ claimToken = "", initialRedirectUrl = "", detectedCard = null }: ActivateFormProps) {
   const [form, setForm] = useState<FormState>({
     activationCode: "",
-    redirectUrl: ""
+    redirectUrl: initialRedirectUrl,
+    name: "",
+    email: "",
+    password: ""
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ApiResponse | null>(null);
@@ -39,6 +47,21 @@ export function ActivateForm({ claimToken = "", detectedCard = null }: ActivateF
   const isValid = useMemo(() => {
     return (claimToken || form.activationCode.trim().length >= 6) && form.redirectUrl.trim().includes(".");
   }, [claimToken, form]);
+
+  const googleNext = useMemo(() => {
+    const params = new URLSearchParams();
+
+    if (claimToken) {
+      params.set("claim", claimToken);
+    }
+
+    if (form.redirectUrl.trim()) {
+      params.set("destination", form.redirectUrl.trim());
+    }
+
+    const next = `/activate${params.toString() ? `?${params.toString()}` : ""}`;
+    return `/api/auth/google?next=${encodeURIComponent(next)}`;
+  }, [claimToken, form.redirectUrl]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,8 +84,14 @@ export function ActivateForm({ claimToken = "", detectedCard = null }: ActivateF
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          ...form,
-          claimToken
+          activationCode: form.activationCode,
+          redirectUrl: form.redirectUrl,
+          claimToken,
+          account: {
+            name: form.name,
+            email: form.email,
+            password: form.password
+          }
         })
       });
       const payload = (await response.json()) as ApiResponse;
@@ -112,6 +141,59 @@ export function ActivateForm({ claimToken = "", detectedCard = null }: ActivateF
             inputMode="url"
           />
         </label>
+
+        <div className="rounded-3xl border border-white/10 bg-white/[0.055] p-4">
+          <p className="text-sm font-semibold text-white/84">Create your management account</p>
+          <p className="mt-1 text-sm leading-6 text-white/56">
+            This keeps the card connected to you so you can edit the link later.
+          </p>
+
+          <div className="mt-4 space-y-4">
+            <label className="block">
+              <span className="text-sm font-medium text-white/82">Full name</span>
+              <input
+                value={form.name}
+                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
+                placeholder="Your name"
+                autoComplete="name"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-sm font-medium text-white/82">Email</span>
+              <input
+                value={form.email}
+                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
+                placeholder="you@example.com"
+                type="email"
+                autoComplete="email"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-sm font-medium text-white/82">Password</span>
+              <input
+                value={form.password}
+                onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
+                className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
+                placeholder="At least 8 characters"
+                type="password"
+                autoComplete="new-password"
+              />
+            </label>
+          </div>
+
+          <Link
+            href={googleNext}
+            className="focus-ring mt-4 flex w-full items-center justify-center gap-3 rounded-full border border-white/14 bg-white/8 px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/14"
+          >
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-white text-base font-bold text-ink">G</span>
+            Continue with Google
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
         <button
           type="submit"

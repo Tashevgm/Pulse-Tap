@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { normalizeUrl } from "@/lib/cards";
 import { activateCard, activateCardByClaimToken, findCardByActivationCode, findCardByClaimToken } from "@/lib/card-repository";
-import { ensureActivationProfile } from "@/lib/user-repository";
+import { ensureActivationProfile, getCurrentProfile } from "@/lib/user-repository";
+import { hasSupabaseEnv, createSupabaseServerClient } from "@/lib/supabase/server";
+import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
 
 export async function POST(request: Request) {
   try {
@@ -10,6 +12,11 @@ export async function POST(request: Request) {
       activationCode?: string;
       claimToken?: string;
       redirectUrl?: string;
+      account?: {
+        name?: string;
+        email?: string;
+        password?: string;
+      };
     };
 
     const activationCode = body.activationCode?.trim() ?? "";
@@ -64,7 +71,76 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies();
-    const userId = await ensureActivationProfile(cookieStore.get("pulsetap_user_id")?.value);
+    const currentProfile = await getCurrentProfile(cookieStore.get("pulsetap_user_id")?.value);
+    let userId = currentProfile?.id ?? "";
+    let accountMessage = currentProfile?.isAuthenticated ? " You can manage it from your profile." : "";
+
+    if (!userId && hasSupabaseEnv() && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      const account = body.account;
+      const name = account?.name?.trim() ?? "";
+      const email = account?.email?.trim().toLowerCase() ?? "";
+      const password = account?.password ?? "";
+
+      if (!name || !email || !password) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: "Create an account with your name, email and password so you can manage this card later."
+          },
+          { status: 401 }
+        );
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: "Enter a valid email address."
+          },
+          { status: 400 }
+        );
+      }
+
+      if (password.length < 8) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: "Password must be at least 8 characters."
+          },
+          { status: 400 }
+        );
+      }
+
+      const supabase = await createSupabaseServerClient();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            company_name: name
+          }
+        }
+      });
+
+      if (error || !data.user) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: error?.message ?? "Could not create this account."
+          },
+          { status: 400 }
+        );
+      }
+
+      const profile = await upsertProfileForAuthUser(data.user);
+      userId = profile.id;
+      accountMessage = " Check your email to verify your account, then you can manage this card from your profile.";
+    }
+
+    if (!userId) {
+      userId = await ensureActivationProfile(cookieStore.get("pulsetap_user_id")?.value);
+    }
 
     const activatedCard = claimToken
       ? await activateCardByClaimToken(claimToken, redirectUrl, userId)
@@ -82,7 +158,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       ok: true,
-      message: "Your PulseTap product is active. NFC and QR traffic will now open the destination URL.",
+      message: `Your PulseTap product is active. NFC and QR traffic will now open the destination URL.${accountMessage}`,
       card: {
         id: activatedCard.id,
         redirectUrl: activatedCard.redirectUrl,

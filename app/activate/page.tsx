@@ -10,11 +10,12 @@ export const metadata: Metadata = {
 type ActivatePageProps = {
   searchParams: Promise<{
     claim?: string;
+    destination?: string;
   }>;
 };
 
 export default async function ActivatePage({ searchParams }: ActivatePageProps) {
-  const { claim = "" } = await searchParams;
+  const { claim = "", destination = "" } = await searchParams;
   const detectedCard = claim ? await findCardByClaimToken(claim) : null;
 
   return (
@@ -39,6 +40,7 @@ export default async function ActivatePage({ searchParams }: ActivatePageProps) 
         </div>
         <ActivateForm
           claimToken={detectedCard ? claim : ""}
+          initialRedirectUrl={destination}
           detectedCard={
             detectedCard
               ? {
