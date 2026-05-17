@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Box, Link2, Sparkles } from "lucide-react";
 import { ProductManager } from "@/components/product-manager";
-import { readCardsForUser } from "@/lib/card-store";
+import { readCardsForUser } from "@/lib/card-repository";
 import { getUserById } from "@/lib/user-store";
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { updateCardRedirect } from "@/lib/card-store";
+import { updateCardRedirect } from "@/lib/card-repository";
 
 type RouteContext = {
   params: Promise<{

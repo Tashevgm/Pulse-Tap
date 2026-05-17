@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ActivateForm } from "@/components/activate-form";
-import { findCardByClaimToken } from "@/lib/card-store";
+import { findCardByClaimToken } from "@/lib/card-repository";
 
 export const metadata: Metadata = {
   title: "Activate",

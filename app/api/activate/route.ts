@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { normalizeUrl } from "@/lib/cards";
-import { activateCard, activateCardByClaimToken, findCardByActivationCode, findCardByClaimToken } from "@/lib/card-store";
+import { activateCard, activateCardByClaimToken, findCardByActivationCode, findCardByClaimToken } from "@/lib/card-repository";
 import { registerDemoGoogleUser } from "@/lib/user-store";
 
 export async function POST(request: Request) {

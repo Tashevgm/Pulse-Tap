@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { findCardById, recordTap } from "@/lib/card-store";
+import { findCardById, recordTap } from "@/lib/card-repository";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
