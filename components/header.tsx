@@ -3,7 +3,6 @@ import { Activity, ArrowRight } from "lucide-react";
 
 const nav = [
   { href: "/products", label: "Products" },
-  { href: "/activate", label: "Activate" },
   { href: "/dashboard", label: "Profile" },
   { href: "/support", label: "Support" }
 ];
