@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { ArrowRight, Loader2, Mail } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Mail } from "lucide-react";
 
 export function SignUpForm() {
   const [form, setForm] = useState({
@@ -12,11 +12,13 @@ export function SignUpForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -29,10 +31,16 @@ export function SignUpForm() {
       const payload = (await response.json()) as {
         ok: boolean;
         message?: string;
+        verificationSent?: boolean;
       };
 
       if (!response.ok || !payload.ok) {
         setError(payload.message ?? "Could not create this account.");
+        return;
+      }
+
+      if (payload.verificationSent) {
+        setSuccess(payload.message ?? "Check your email to verify your account.");
         return;
       }
 
@@ -93,6 +101,14 @@ export function SignUpForm() {
       </label>
 
       {error ? <p className="rounded-2xl border border-coral/30 bg-coral/10 px-4 py-3 text-sm text-white/78">{error}</p> : null}
+      {success ? (
+        <div className="rounded-2xl border border-volt/30 bg-volt/10 px-4 py-3 text-sm text-white/78">
+          <div className="flex gap-2">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 text-volt" />
+            <p>{success}</p>
+          </div>
+        </div>
+      ) : null}
 
       <button
         type="submit"

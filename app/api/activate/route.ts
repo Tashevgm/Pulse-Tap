@@ -8,6 +8,7 @@ import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
 
 export async function POST(request: Request) {
   try {
+    const requestUrl = new URL(request.url);
     const body = (await request.json()) as {
       activationCode?: string;
       claimToken?: string;
@@ -112,10 +113,14 @@ export async function POST(request: Request) {
       }
 
       const supabase = await createSupabaseServerClient();
+      const emailRedirectTo = new URL("/api/auth/callback", requestUrl.origin);
+      emailRedirectTo.searchParams.set("next", "/dashboard");
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: emailRedirectTo.toString(),
           data: {
             full_name: name,
             company_name: name
@@ -135,7 +140,9 @@ export async function POST(request: Request) {
 
       const profile = await upsertProfileForAuthUser(data.user);
       userId = profile.id;
-      accountMessage = " Check your email to verify your account, then you can manage this card from your profile.";
+      accountMessage = data.session
+        ? " You can manage this card from your profile."
+        : " Check your email to verify your account, then you can manage this card from your profile.";
     }
 
     if (!userId) {

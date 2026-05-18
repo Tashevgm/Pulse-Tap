@@ -5,6 +5,7 @@ import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
 
 export async function POST(request: Request) {
   try {
+    const requestUrl = new URL(request.url);
     const body = (await request.json()) as {
       name?: string;
       email?: string;
@@ -49,10 +50,14 @@ export async function POST(request: Request) {
 
     if (hasSupabaseEnv() && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       const supabase = await createSupabaseServerClient();
+      const emailRedirectTo = new URL("/api/auth/callback", requestUrl.origin);
+      emailRedirectTo.searchParams.set("next", "/dashboard");
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: emailRedirectTo.toString(),
           data: {
             full_name: name,
             company_name: companyName || name
@@ -83,6 +88,10 @@ export async function POST(request: Request) {
       const profile = await upsertProfileForAuthUser(data.user);
       const response = NextResponse.json({
         ok: true,
+        verificationSent: !data.session,
+        message: data.session
+          ? "Account created. You can manage your PulseTap products from your profile."
+          : "Account created. Check your email to verify your address, then open your PulseTap profile.",
         user: {
           id: profile.id,
           name: profile.full_name,
