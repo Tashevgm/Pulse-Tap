@@ -8,7 +8,26 @@ export const metadata: Metadata = {
   description: "Create a PulseTap account with Google or email to manage NFC and QR products."
 };
 
-export default function SignUpPage() {
+type SignUpPageProps = {
+  searchParams: Promise<{
+    error?: string;
+    message?: string;
+  }>;
+};
+
+const authErrorTitles: Record<string, string> = {
+  callback: "Google sign in could not finish",
+  "missing-code": "Google did not return a login code",
+  "no-user": "Google account was not returned",
+  profile: "PulseTap profile could not be created",
+  server_error: "Google provider setup needs attention",
+  unexpected_failure: "Google provider setup needs attention"
+};
+
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const { error = "", message = "" } = await searchParams;
+  const errorTitle = error ? authErrorTitles[error] ?? "Sign in needs attention" : "";
+
   return (
     <main className="min-h-screen bg-premium-radial px-5 py-14">
       <section className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[0.92fr_1.08fr]">
@@ -52,6 +71,15 @@ export default function SignUpPage() {
             Continue with Google
             <ArrowRight className="h-4 w-4" />
           </Link>
+
+          {error ? (
+            <div className="mt-4 rounded-3xl border border-coral/30 bg-coral/10 p-4">
+              <p className="text-sm font-semibold text-white">{errorTitle}</p>
+              <p className="mt-1 text-sm leading-6 text-white/66">
+                {message || "Check the Supabase Google provider settings and try again."}
+              </p>
+            </div>
+          ) : null}
 
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-white/10" />
