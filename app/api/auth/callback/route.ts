@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const authError = requestUrl.searchParams.get("error");
   const authErrorDescription = requestUrl.searchParams.get("error_description");
   const code = requestUrl.searchParams.get("code");
+  const type = requestUrl.searchParams.get("type");
   const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
   const next = requestedNext.startsWith("/") ? requestedNext : "/dashboard";
 
@@ -32,6 +33,10 @@ export async function GET(request: Request) {
     signupUrl.searchParams.set("error", "callback");
     signupUrl.searchParams.set("message", error.message);
     return NextResponse.redirect(signupUrl);
+  }
+
+  if (type === "recovery") {
+    return NextResponse.redirect(new URL("/reset-password", requestUrl.origin));
   }
 
   const {

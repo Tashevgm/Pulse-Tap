@@ -95,6 +95,12 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
               Open your profile
             </Link>
           </p>
+          <p className="mt-2 text-center text-sm leading-6 text-white/48">
+            Forgot your password?{" "}
+            <Link href="/forgot-password" className="font-semibold text-white hover:text-pulse">
+              Send reset link
+            </Link>
+          </p>
         </div>
       </section>
     </main>
