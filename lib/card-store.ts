@@ -157,7 +157,8 @@ export async function recordTap(cardId: string) {
 
   const tappedCard: Card = {
     ...cards[cardIndex],
-    taps: cards[cardIndex].taps + 1
+    taps: cards[cardIndex].taps + 1,
+    lastTappedAt: new Date().toISOString()
   };
 
   await writeDatabaseCards(database, cards.toSpliced(cardIndex, 1, tappedCard));

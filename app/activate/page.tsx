@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { ActivateForm } from "@/components/activate-form";
 import { findCardByClaimToken } from "@/lib/card-repository";
+import { getCurrentProfile } from "@/lib/user-repository";
 
 export const metadata: Metadata = {
   title: "Activate",
@@ -17,6 +19,8 @@ type ActivatePageProps = {
 export default async function ActivatePage({ searchParams }: ActivatePageProps) {
   const { claim = "", destination = "" } = await searchParams;
   const detectedCard = claim ? await findCardByClaimToken(claim) : null;
+  const cookieStore = await cookies();
+  const profile = await getCurrentProfile(cookieStore.get("pulsetap_user_id")?.value);
 
   return (
     <main className="min-h-screen bg-premium-radial px-5 py-14">
@@ -41,6 +45,7 @@ export default async function ActivatePage({ searchParams }: ActivatePageProps) 
         <ActivateForm
           claimToken={detectedCard ? claim : ""}
           initialRedirectUrl={destination}
+          isSignedIn={Boolean(profile?.isAuthenticated)}
           detectedCard={
             detectedCard
               ? {

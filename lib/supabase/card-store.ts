@@ -13,6 +13,7 @@ type CardRow = {
   owner_profile_id: string | null;
   taps: number;
   updated_at: string;
+  last_tapped_at?: string | null;
 };
 
 function mapCardRow(row: CardRow): Card {
@@ -27,8 +28,42 @@ function mapCardRow(row: CardRow): Card {
     ownerUserId: row.owner_profile_id ?? undefined,
     label: row.label,
     taps: row.taps,
-    updatedAt: row.updated_at.slice(0, 10)
+    updatedAt: row.updated_at.slice(0, 10),
+    lastTappedAt: row.last_tapped_at ?? undefined
   };
+}
+
+async function addLastTapData(cards: Card[]) {
+  if (cards.length === 0) {
+    return cards;
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("tap_events")
+    .select("card_id,created_at")
+    .in(
+      "card_id",
+      cards.map((card) => card.id)
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const latestByCard = new Map<string, string>();
+
+  for (const event of data as Array<{ card_id: string; created_at: string }>) {
+    if (!latestByCard.has(event.card_id)) {
+      latestByCard.set(event.card_id, event.created_at);
+    }
+  }
+
+  return cards.map((card) => ({
+    ...card,
+    lastTappedAt: latestByCard.get(card.id) ?? card.lastTappedAt
+  }));
 }
 
 export async function readSupabaseCards() {
@@ -42,7 +77,7 @@ export async function readSupabaseCards() {
     throw error;
   }
 
-  return (data as CardRow[]).map(mapCardRow);
+  return addLastTapData((data as CardRow[]).map(mapCardRow));
 }
 
 export async function readSupabaseCardDatabases() {
@@ -150,7 +185,7 @@ export async function updateSupabaseCardRedirect(cardId: string, redirectUrl: st
   return mapCardRow(data as CardRow);
 }
 
-export async function recordSupabaseTap(cardId: string) {
+export async function recordSupabaseTap(cardId: string, metadata?: { userAgent?: string; referrer?: string }) {
   const card = await findSupabaseCardById(cardId);
 
   if (!card) {
@@ -171,10 +206,15 @@ export async function recordSupabaseTap(cardId: string) {
 
   await supabase.from("tap_events").insert({
     card_id: card.id,
-    redirect_url: card.redirectUrl
+    redirect_url: card.redirectUrl,
+    user_agent: metadata?.userAgent ?? null,
+    referrer: metadata?.referrer ?? null
   });
 
-  return mapCardRow(data as CardRow);
+  return {
+    ...mapCardRow(data as CardRow),
+    lastTappedAt: new Date().toISOString()
+  };
 }
 
 export async function readSupabaseCardsForUser(userId: string) {
@@ -189,5 +229,5 @@ export async function readSupabaseCardsForUser(userId: string) {
     throw error;
   }
 
-  return (data as CardRow[]).map(mapCardRow);
+  return addLastTapData((data as CardRow[]).map(mapCardRow));
 }

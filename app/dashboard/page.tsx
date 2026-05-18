@@ -31,7 +31,7 @@ export default async function DashboardPage() {
               All your PulseTap products in one place.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/66">
-              Products appear here only after you activate them with the code supplied with your NFC or QR card.
+              Products appear here after you tap or scan a PulseTap card and connect it to your account.
             </p>
           </div>
 

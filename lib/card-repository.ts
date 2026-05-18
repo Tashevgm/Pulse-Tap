@@ -87,9 +87,9 @@ export async function updateCardRedirect(cardId: string, redirectUrl: string) {
   );
 }
 
-export async function recordTap(cardId: string) {
+export async function recordTap(cardId: string, metadata?: { userAgent?: string; referrer?: string }) {
   return withFallback(
-    () => recordSupabaseTap(cardId),
+    () => recordSupabaseTap(cardId, metadata),
     () => recordLocalTap(cardId)
   );
 }

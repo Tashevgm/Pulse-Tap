@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     const currentProfile = await getCurrentProfile(cookieStore.get("pulsetap_user_id")?.value);
-    let userId = currentProfile?.id ?? "";
+    let userId = currentProfile?.isAuthenticated ? currentProfile.id : "";
     let accountMessage = currentProfile?.isAuthenticated ? " You can manage it from your profile." : "";
 
     if (!userId && hasSupabaseEnv() && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {

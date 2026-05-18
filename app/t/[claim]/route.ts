@@ -21,7 +21,10 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.redirect(activateUrl);
   }
 
-  await recordTap(card.id);
+  await recordTap(card.id, {
+    userAgent: request.headers.get("user-agent") ?? undefined,
+    referrer: request.headers.get("referer") ?? undefined
+  });
 
   return NextResponse.redirect(card.redirectUrl, {
     status: 302
