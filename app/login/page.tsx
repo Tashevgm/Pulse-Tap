@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, LockKeyhole, Smartphone } from "lucide-react";
-import { SignUpForm } from "@/components/signup-form";
+import { LoginForm } from "@/components/login-form";
 
 export const metadata: Metadata = {
-  title: "Sign Up",
-  description: "Create a PulseTap account with Google or email to manage NFC and QR products."
+  title: "Log In",
+  description: "Log in to PulseTap to manage NFC and QR products."
 };
 
-type SignUpPageProps = {
+type LoginPageProps = {
   searchParams: Promise<{
     error?: string;
     message?: string;
@@ -19,12 +19,12 @@ const authErrorTitles: Record<string, string> = {
   callback: "Google sign in could not finish",
   "missing-code": "Google did not return a login code",
   "no-user": "Google account was not returned",
-  profile: "PulseTap profile could not be created",
+  profile: "PulseTap profile could not be opened",
   server_error: "Google provider setup needs attention",
   unexpected_failure: "Google provider setup needs attention"
 };
 
-export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { error = "", message = "" } = await searchParams;
   const errorTitle = error ? authErrorTitles[error] ?? "Sign in needs attention" : "";
 
@@ -32,18 +32,18 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
     <main className="min-h-screen bg-premium-radial px-5 py-14">
       <section className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[0.92fr_1.08fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.34em] text-pulse">Create Account</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.34em] text-pulse">Customer Login</p>
           <h1 className="mt-5 text-4xl font-semibold tracking-tight md:text-6xl">
-            Register and manage every PulseTap product.
+            Manage your PulseTap products.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-white/66">
-            Your account gives you access to activated cards, QR backups, editable redirects and profile tools.
+            Log in to update card links, view QR backups, and check product activity.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {[
-              { icon: BadgeCheck, title: "All products", copy: "View cards and stands connected to your profile." },
-              { icon: Smartphone, title: "No app required", copy: "Manage links from the browser." },
-              { icon: LockKeyhole, title: "Secure access", copy: "Google login is powered by Supabase Auth." }
+              { icon: BadgeCheck, title: "Your products", copy: "View every card connected to your profile." },
+              { icon: Smartphone, title: "Editable links", copy: "Change destinations from any browser." },
+              { icon: LockKeyhole, title: "Secure access", copy: "Google and email login are powered by Supabase Auth." }
             ].map((item) => (
               <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.055] p-4">
                 <item.icon className="h-5 w-5 text-pulse" />
@@ -57,14 +57,14 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
         <div className="glass rounded-[2rem] p-5 md:p-8">
           <div className="rounded-3xl border border-white/10 bg-black/24 p-5">
             <p className="text-sm font-semibold text-white/82">PulseTap account</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Sign up</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Log in</h2>
             <p className="mt-3 text-sm leading-6 text-white/58">
-              Sign in with Google or create an account with email and password.
+              Continue with Google or log in with email and password.
             </p>
           </div>
 
           <Link
-            href="/api/auth/google"
+            href="/api/auth/google?next=%2Fdashboard"
             className="focus-ring mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-4 text-sm font-semibold text-ink transition hover:bg-pulse"
           >
             <span className="grid h-6 w-6 place-items-center rounded-full border border-black/10 text-base font-bold">G</span>
@@ -87,12 +87,12 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             <div className="h-px flex-1 bg-white/10" />
           </div>
 
-          <SignUpForm />
+          <LoginForm />
 
           <p className="mt-5 text-center text-sm leading-6 text-white/48">
-            Already registered?{" "}
-            <Link href="/login" className="font-semibold text-white hover:text-pulse">
-              Log in
+            Need an account?{" "}
+            <Link href="/signup" className="font-semibold text-white hover:text-pulse">
+              Create one
             </Link>
           </p>
           <p className="mt-2 text-center text-sm leading-6 text-white/48">

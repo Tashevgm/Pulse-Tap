@@ -28,10 +28,10 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/signup"
-            className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
+            href="/login"
+            className="focus-ring inline-flex items-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
           >
-            Sign Up
+            Log In
           </Link>
           <Link
             href="/activate"
