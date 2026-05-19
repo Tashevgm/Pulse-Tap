@@ -39,6 +39,15 @@ function formatShortDate(value: Date) {
   }).format(value);
 }
 
+function localDateKey(value: Date | string) {
+  const date = typeof value === "string" ? new Date(value) : value;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function cardTypeLabel(card: Card) {
   if (card.type === "google-review" || card.type === "google-review-stand") {
     return "Review page visits";
@@ -96,7 +105,7 @@ function buildTrend(tapEvents: TapEvent[], range: RangeKey) {
     const date = new Date();
     date.setDate(date.getDate() - (dayCount - 1 - index));
     date.setHours(0, 0, 0, 0);
-    const key = date.toISOString().slice(0, 10);
+    const key = localDateKey(date);
 
     return {
       key,
@@ -112,7 +121,7 @@ function buildTrend(tapEvents: TapEvent[], range: RangeKey) {
   const dayByKey = new Map(days.map((day) => [day.key, day]));
 
   for (const event of tapEvents) {
-    const day = dayByKey.get(event.createdAt.slice(0, 10));
+    const day = dayByKey.get(localDateKey(event.createdAt));
 
     if (day) {
       day.count += 1;
