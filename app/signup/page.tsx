@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, LockKeyhole, Smartphone } from "lucide-react";
+import { BadgeCheck, LockKeyhole, Smartphone } from "lucide-react";
 import { SignUpForm } from "@/components/signup-form";
 
 export const metadata: Metadata = {
   title: "Sign Up",
-  description: "Create a PulseTap account with Google or email to manage NFC and QR products."
+  description: "Create a PulseTap account with email and password to manage NFC and QR products."
 };
 
 type SignUpPageProps = {
@@ -16,12 +16,12 @@ type SignUpPageProps = {
 };
 
 const authErrorTitles: Record<string, string> = {
-  callback: "Google sign in could not finish",
-  "missing-code": "Google did not return a login code",
-  "no-user": "Google account was not returned",
+  callback: "Email verification could not finish",
+  "missing-code": "Verification link is missing a code",
+  "no-user": "Account was not returned",
   profile: "PulseTap profile could not be created",
-  server_error: "Google provider setup needs attention",
-  unexpected_failure: "Google provider setup needs attention"
+  server_error: "Account setup needs attention",
+  unexpected_failure: "Account setup needs attention"
 };
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
@@ -43,7 +43,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             {[
               { icon: BadgeCheck, title: "All products", copy: "View cards and stands connected to your profile." },
               { icon: Smartphone, title: "No app required", copy: "Manage links from the browser." },
-              { icon: LockKeyhole, title: "Secure access", copy: "Google login is powered by Supabase Auth." }
+              { icon: LockKeyhole, title: "Secure access", copy: "Email verification is powered by Supabase Auth." }
             ].map((item) => (
               <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.055] p-4">
                 <item.icon className="h-5 w-5 text-pulse" />
@@ -59,33 +59,18 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             <p className="text-sm font-semibold text-white/82">PulseTap account</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">Sign up</h2>
             <p className="mt-3 text-sm leading-6 text-white/58">
-              Sign in with Google or create an account with email and password.
+              Create an account with email and password. We will send a verification link before first login.
             </p>
           </div>
 
-          <Link
-            href="/api/auth/google"
-            className="focus-ring mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-4 text-sm font-semibold text-ink transition hover:bg-pulse"
-          >
-            <span className="grid h-6 w-6 place-items-center rounded-full border border-black/10 text-base font-bold">G</span>
-            Continue with Google
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-
           {error ? (
-            <div className="mt-4 rounded-3xl border border-coral/30 bg-coral/10 p-4">
+            <div className="mt-6 rounded-3xl border border-coral/30 bg-coral/10 p-4">
               <p className="text-sm font-semibold text-white">{errorTitle}</p>
               <p className="mt-1 text-sm leading-6 text-white/66">
-                {message || "Check the Supabase Google provider settings and try again."}
+                {message || "Try logging in with your email and password. If needed, request a new verification email."}
               </p>
             </div>
           ) : null}
-
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/10" />
-            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-white/42">or</span>
-            <div className="h-px flex-1 bg-white/10" />
-          </div>
 
           <SignUpForm />
 

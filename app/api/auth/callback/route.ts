@@ -29,10 +29,15 @@ export async function GET(request: Request) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    const signupUrl = new URL("/signup", requestUrl.origin);
-    signupUrl.searchParams.set("error", "callback");
-    signupUrl.searchParams.set("message", error.message);
-    return NextResponse.redirect(signupUrl);
+    const loginUrl = new URL("/login", requestUrl.origin);
+    loginUrl.searchParams.set("error", "callback");
+    loginUrl.searchParams.set(
+      "message",
+      error.message.includes("code verifier")
+        ? "This verification link opened without the original browser session. If your email is verified, log in with your email and password."
+        : error.message
+    );
+    return NextResponse.redirect(loginUrl);
   }
 
   if (type === "recovery") {
