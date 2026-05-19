@@ -23,6 +23,16 @@ export default function CookiesPage() {
           )
         },
         {
+          title: "Cookie choices",
+          body: (
+            <p>
+              When you first visit PulseTap, we show a cookie choices form. You can accept all cookies, reject optional
+              cookies, or manage categories. Optional analytics and marketing categories are off by default. You can
+              reopen the form using Cookie settings in the footer.
+            </p>
+          )
+        },
+        {
           title: "Essential cookies",
           body: (
             <p>
@@ -66,6 +76,15 @@ export default function CookiesPage() {
             <p>
               You can control cookies through your browser settings. Blocking essential cookies may stop parts of
               PulseTap from working correctly, including login, activation, checkout and profile management.
+            </p>
+          )
+        },
+        {
+          title: "Consent storage",
+          body: (
+            <p>
+              We store your cookie preference in your browser so we can remember your choice. This preference record is
+              used only to apply your cookie settings and avoid asking you on every page.
             </p>
           )
         },

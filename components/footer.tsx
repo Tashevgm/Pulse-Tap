@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Activity } from "lucide-react";
+import { CookieSettingsButton } from "@/components/cookie-consent";
 
 const links = [
   { href: "/shop", label: "Shop" },
@@ -33,6 +34,7 @@ export function Footer() {
               {link.label}
             </Link>
           ))}
+          <CookieSettingsButton />
         </div>
       </div>
     </footer>
