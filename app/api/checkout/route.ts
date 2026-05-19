@@ -6,6 +6,8 @@ import { createPendingCheckoutOrder, attachStripeSessionToOrder } from "@/lib/su
 import { getCurrentProfile } from "@/lib/user-repository";
 import { cookies } from "next/headers";
 
+export const runtime = "nodejs";
+
 const deliveryAmount = 299;
 
 export async function POST(request: Request) {

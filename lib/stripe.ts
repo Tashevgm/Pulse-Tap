@@ -7,7 +7,5 @@ export function createStripeClient() {
     throw new Error("Missing STRIPE_SECRET_KEY.");
   }
 
-  return new Stripe(secretKey, {
-    apiVersion: "2026-04-22.dahlia"
-  });
+  return new Stripe(secretKey);
 }

@@ -4,6 +4,8 @@ import { createStripeClient } from "@/lib/stripe";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { markCheckoutOrderCompleted, markCheckoutOrderExpired } from "@/lib/supabase/order-store";
 
+export const runtime = "nodejs";
+
 function formatAddress(address?: Stripe.Address | null) {
   if (!address) {
     return null;
