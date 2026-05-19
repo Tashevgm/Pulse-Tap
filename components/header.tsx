@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Activity, ArrowRight } from "lucide-react";
+import { cookies } from "next/headers";
+import { getCurrentProfile } from "@/lib/user-repository";
 
 const nav = [
   { href: "/shop", label: "Shop" },
@@ -7,7 +9,11 @@ const nav = [
   { href: "/support", label: "Support" }
 ];
 
-export function Header() {
+export async function Header() {
+  const cookieStore = await cookies();
+  const profile = await getCurrentProfile(cookieStore.get("pulsetap_user_id")?.value);
+  const isSignedIn = Boolean(profile?.isAuthenticated);
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/78 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -27,12 +33,23 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="focus-ring inline-flex items-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
-          >
-            Log In
-          </Link>
+          {isSignedIn ? (
+            <form action="/api/auth/logout" method="post">
+              <button
+                type="submit"
+                className="focus-ring inline-flex items-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
+              >
+                Log out
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/login"
+              className="focus-ring inline-flex items-center rounded-full border border-white/14 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
+            >
+              Log In
+            </Link>
+          )}
           <Link
             href="/activate"
             className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
