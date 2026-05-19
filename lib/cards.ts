@@ -19,6 +19,7 @@ export type Card = {
   taps: number;
   updatedAt: string;
   lastTappedAt?: string;
+  activatedAt?: string;
 };
 
 function createSeedCards({

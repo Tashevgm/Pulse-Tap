@@ -78,6 +78,10 @@ function filterEvents(tapEvents: TapEvent[], range: RangeKey) {
   return tapEvents.filter((event) => new Date(event.createdAt) >= cutoff);
 }
 
+function filterEventsFromStart(tapEvents: TapEvent[], startDate: Date) {
+  return tapEvents.filter((event) => new Date(event.createdAt) >= startDate);
+}
+
 function countPreviousPeriodEvents(tapEvents: TapEvent[], range: RangeKey) {
   const selected = ranges.find((item) => item.key === range);
 
@@ -98,19 +102,51 @@ function countPreviousPeriodEvents(tapEvents: TapEvent[], range: RangeKey) {
   }).length;
 }
 
-function buildTrend(tapEvents: TapEvent[], range: RangeKey) {
+function startOfLocalDay(value: Date | string) {
+  const date = typeof value === "string" ? new Date(value) : new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function daysBetween(start: Date, end: Date) {
+  const startDate = startOfLocalDay(start);
+  const endDate = startOfLocalDay(end);
+  return Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1);
+}
+
+function getAnalyticsStartDate(cards: Card[], range: RangeKey) {
+  const today = startOfLocalDay(new Date());
   const selected = ranges.find((item) => item.key === range);
-  const dayCount = selected?.days ?? 30;
+  const activatedDates = cards
+    .map((card) => card.activatedAt)
+    .filter(Boolean)
+    .map((value) => startOfLocalDay(value as string))
+    .sort((a, b) => a.getTime() - b.getTime());
+  const firstActivation = activatedDates[0] ?? today;
+
+  if (!selected?.days) {
+    return firstActivation;
+  }
+
+  const rangeStart = new Date(today);
+  rangeStart.setDate(rangeStart.getDate() - selected.days + 1);
+
+  return firstActivation > rangeStart ? firstActivation : rangeStart;
+}
+
+function buildTrend(tapEvents: TapEvent[], range: RangeKey, startDate: Date) {
+  const selected = ranges.find((item) => item.key === range);
+  const today = startOfLocalDay(new Date());
+  const dayCount = selected?.days ? daysBetween(startDate, today) : daysBetween(startDate, today);
   const days = Array.from({ length: dayCount }, (_, index) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (dayCount - 1 - index));
-    date.setHours(0, 0, 0, 0);
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + index);
     const key = localDateKey(date);
 
     return {
       key,
       label:
-        dayCount <= 7
+        daysBetween(startDate, today) <= 7
           ? new Intl.DateTimeFormat("en-GB", { weekday: "short" }).format(date)
           : new Intl.DateTimeFormat("en-GB", { day: "2-digit" }).format(date),
       fullLabel: formatShortDate(date),
@@ -136,7 +172,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
   const [view, setView] = useState<ViewKey>("trend");
 
   const analytics = useMemo(() => {
-    const scopedEvents = filterEvents(tapEvents, range);
+    const startDate = getAnalyticsStartDate(cards, range);
+    const scopedEvents = filterEventsFromStart(filterEvents(tapEvents, range), startDate);
     const totalTaps = scopedEvents.length;
     const activeCards = cards.filter((card) => card.activated).length;
     const tapsByCard = new Map<string, number>();
@@ -155,7 +192,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
 
     const topCard = cardsWithActivity[0]?.card;
     const lastTap = scopedEvents[0]?.createdAt ?? tapEvents[0]?.createdAt ?? cards.map((card) => card.lastTappedAt).filter(Boolean).sort().at(-1);
-    const trend = buildTrend(scopedEvents, range);
+    const trend = buildTrend(scopedEvents, range, startDate);
     const maxTrend = Math.max(...trend.map((day) => day.count), 1);
     const previousPeriodTaps = countPreviousPeriodEvents(tapEvents, range);
 
@@ -248,7 +285,9 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Tap trend</h3>
-                  <p className="mt-1 text-sm text-white/50">Daily visits for the selected period.</p>
+                  <p className="mt-1 text-sm text-white/50">
+                    Daily visits from activation date within the selected period.
+                  </p>
                 </div>
                 {analytics.previousPeriodTaps !== null ? (
                   <div className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-sm text-white/62">

@@ -13,6 +13,7 @@ type CardRow = {
   owner_profile_id: string | null;
   taps: number;
   updated_at: string;
+  activated_at?: string | null;
   last_tapped_at?: string | null;
 };
 
@@ -29,6 +30,7 @@ function mapCardRow(row: CardRow): Card {
     label: row.label,
     taps: row.taps,
     updatedAt: row.updated_at.slice(0, 10),
+    activatedAt: row.activated_at ?? undefined,
     lastTappedAt: row.last_tapped_at ?? undefined
   };
 }
