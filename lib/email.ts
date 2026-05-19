@@ -17,6 +17,22 @@ function button(label: string, href: string) {
   return `<a href="${href}" style="display:inline-block;padding:13px 20px;background:#10131a;color:#ffffff;text-decoration:none;border-radius:999px;font-size:14px;font-weight:700;">${label}</a>`;
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatCurrency(amount: number, currency: string) {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: currency.toUpperCase()
+  }).format(amount / 100);
+}
+
 function shell(content: string) {
   return `
     <div style="font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;padding:32px;">
@@ -84,6 +100,57 @@ export async function sendAbandonedCheckoutEmail({
       <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">You started checkout for a PulseTap product but did not complete the order.</p>
       <p style="margin:24px 0;">${button("Return to shop", shopUrl)}</p>
       <p style="margin:0;font-size:14px;line-height:1.6;color:#667085;">If you changed your mind, you can ignore this email.</p>
+    `)
+  });
+}
+
+export async function sendOrderConfirmationEmail({
+  to,
+  productName,
+  amountTotal,
+  shippingAmount,
+  currency,
+  shippingName,
+  shippingAddress,
+  dashboardUrl
+}: {
+  to: string;
+  productName: string;
+  amountTotal: number;
+  shippingAmount: number;
+  currency: string;
+  shippingName?: string | null;
+  shippingAddress?: string | null;
+  dashboardUrl: string;
+}) {
+  const safeProductName = escapeHtml(productName);
+  const safeShippingName = shippingName ? escapeHtml(shippingName) : "";
+  const safeShippingAddress = shippingAddress ? escapeHtml(shippingAddress).replace(/\n/g, "<br />") : "";
+
+  return sendEmail({
+    to,
+    subject: `Your PulseTap order is confirmed`,
+    html: shell(`
+      <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;color:#10131a;font-weight:700;">Order confirmed</h1>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#4b5563;">Thanks for your order. We have received your payment and will prepare your PulseTap product for delivery.</p>
+      <div style="border:1px solid #edf0f4;border-radius:16px;padding:18px;margin:22px 0;">
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#667085;">Product</p>
+        <p style="margin:0 0 16px;font-size:16px;line-height:1.5;color:#10131a;font-weight:700;">${safeProductName}</p>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#667085;">Delivery</p>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.5;color:#10131a;">${formatCurrency(shippingAmount, currency)}</p>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#667085;">Total paid</p>
+        <p style="margin:0;font-size:20px;line-height:1.4;color:#10131a;font-weight:700;">${formatCurrency(amountTotal, currency)}</p>
+      </div>
+      ${
+        safeShippingName || safeShippingAddress
+          ? `<div style="border:1px solid #edf0f4;border-radius:16px;padding:18px;margin:22px 0;">
+              <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#667085;">Shipping address</p>
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5563;">${safeShippingName}${safeShippingName && safeShippingAddress ? "<br />" : ""}${safeShippingAddress}</p>
+            </div>`
+          : ""
+      }
+      <p style="margin:24px 0;">${button("Open your profile", dashboardUrl)}</p>
+      <p style="margin:0;font-size:14px;line-height:1.6;color:#667085;">When your card arrives, tap it and follow the activation flow to connect it to your destination link.</p>
     `)
   });
 }

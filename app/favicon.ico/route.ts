@@ -1,8 +1,3 @@
-export function GET() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Cache-Control": "no-store, max-age=0"
-    }
-  });
+export function GET(request: Request) {
+  return Response.redirect(new URL("/images/pulsetap-logo.png", request.url), 308);
 }

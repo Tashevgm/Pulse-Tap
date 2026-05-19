@@ -6,6 +6,8 @@ import { createPendingCheckoutOrder, attachStripeSessionToOrder } from "@/lib/su
 import { getCurrentProfile } from "@/lib/user-repository";
 import { cookies } from "next/headers";
 
+const deliveryAmount = 299;
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
@@ -46,7 +48,7 @@ export async function POST(request: Request) {
       productName: product.title,
       customerEmail,
       profileId: profile?.id,
-      amount: shopProduct.unitAmount,
+      amount: shopProduct.unitAmount + deliveryAmount,
       currency: "gbp"
     });
     const stripe = createStripeClient();
@@ -59,6 +61,28 @@ export async function POST(request: Request) {
       shipping_address_collection: {
         allowed_countries: ["GB", "IE"]
       },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: {
+              amount: deliveryAmount,
+              currency: "gbp"
+            },
+            display_name: "Standard delivery",
+            delivery_estimate: {
+              minimum: {
+                unit: "business_day",
+                value: 2
+              },
+              maximum: {
+                unit: "business_day",
+                value: 5
+              }
+            }
+          }
+        }
+      ],
       line_items: [
         {
           quantity: 1,

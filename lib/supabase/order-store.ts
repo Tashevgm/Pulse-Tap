@@ -126,6 +126,7 @@ export async function markCheckoutOrderCompleted({
       completed_at: new Date().toISOString()
     })
     .eq("stripe_session_id", stripeSessionId)
+    .neq("status", "completed")
     .select("*")
     .maybeSingle<CheckoutOrderRow>();
 

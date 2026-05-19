@@ -74,6 +74,15 @@ export const products: Product[] = [
     image: "/images/instagram-review-stand.jpg",
     accent: "from-coral/30 to-volt/20",
     cta: "View Instagram stands"
+  },
+  {
+    id: "custom-stand",
+    title: "Custom NFC + QR Stand",
+    category: "Custom Stand",
+    description: "A branded counter stand built around your chosen destination, from reviews to socials or menus.",
+    image: "/images/custom-stand.jpg",
+    accent: "from-pulse/30 to-volt/20",
+    cta: "Build a custom stand"
   }
 ];
 

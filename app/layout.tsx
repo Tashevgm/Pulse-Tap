@@ -11,9 +11,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pulsetap.co.uk"),
+  metadataBase: new URL("https://www.pulse-tap.com"),
   icons: {
-    icon: []
+    icon: [{ url: "/images/pulsetap-logo.png", type: "image/png" }],
+    shortcut: [{ url: "/images/pulsetap-logo.png", type: "image/png" }],
+    apple: [{ url: "/images/pulsetap-logo.png", type: "image/png" }]
   },
   title: {
     default: "PulseTap | Smart NFC + QR Products",
@@ -32,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PulseTap | Smart NFC + QR Products",
     description: "Tap. Activate. Done. Premium NFC + QR products with no app required.",
-    url: "https://pulsetap.co.uk",
+    url: "https://www.pulse-tap.com",
     siteName: "PulseTap",
     type: "website"
   }
