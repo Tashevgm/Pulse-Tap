@@ -5,6 +5,7 @@ import { activateCard, activateCardByClaimToken, findCardByActivationCode, findC
 import { ensureActivationProfile, getCurrentProfile } from "@/lib/user-repository";
 import { hasSupabaseEnv, createSupabaseServerClient } from "@/lib/supabase/server";
 import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
+import { sendCardRegisteredEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -161,6 +162,16 @@ export async function POST(request: Request) {
         },
         { status: 404 }
       );
+    }
+
+    const emailProfile = await getCurrentProfile(userId);
+
+    if (emailProfile?.email) {
+      await sendCardRegisteredEmail({
+        to: emailProfile.email,
+        card: activatedCard,
+        dashboardUrl: new URL("/dashboard", requestUrl.origin).toString()
+      });
     }
 
     const response = NextResponse.json({

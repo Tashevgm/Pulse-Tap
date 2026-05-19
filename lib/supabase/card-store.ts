@@ -231,3 +231,43 @@ export async function readSupabaseCardsForUser(userId: string) {
 
   return addLastTapData((data as CardRow[]).map(mapCardRow));
 }
+
+export type TapEvent = {
+  cardId: string;
+  redirectUrl: string;
+  userAgent?: string;
+  referrer?: string;
+  createdAt: string;
+};
+
+export async function readSupabaseTapEventsForCards(cardIds: string[]) {
+  if (cardIds.length === 0) {
+    return [];
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("tap_events")
+    .select("card_id,redirect_url,user_agent,referrer,created_at")
+    .in("card_id", cardIds)
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as Array<{
+    card_id: string;
+    redirect_url: string;
+    user_agent: string | null;
+    referrer: string | null;
+    created_at: string;
+  }>).map((event) => ({
+    cardId: event.card_id,
+    redirectUrl: event.redirect_url,
+    userAgent: event.user_agent ?? undefined,
+    referrer: event.referrer ?? undefined,
+    createdAt: event.created_at
+  }));
+}

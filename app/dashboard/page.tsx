@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Box, Link2, Sparkles } from "lucide-react";
+import { CardAnalytics } from "@/components/card-analytics";
 import { ProductManager } from "@/components/product-manager";
-import { readCardsForUser } from "@/lib/card-repository";
+import { readCardsForUser, readTapEventsForCards } from "@/lib/card-repository";
 import { getCurrentProfile } from "@/lib/user-repository";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default async function DashboardPage() {
   const accountName = profile?.companyName ?? "PulseTap customer";
   const accountEmail = profile?.email ?? "Sign in to manage your cards";
   const cards = profile ? await readCardsForUser(profile.id) : [];
+  const tapEvents = cards.length ? await readTapEventsForCards(cards.map((card) => card.id)) : [];
   const activeProducts = cards.filter((card) => card.activated).length;
   const totalTaps = cards.reduce((sum, card) => sum + card.taps, 0);
 
@@ -76,6 +78,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      <CardAnalytics cards={cards} tapEvents={tapEvents} />
       <ProductManager cards={cards} />
     </main>
   );

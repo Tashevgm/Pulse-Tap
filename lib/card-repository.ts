@@ -20,6 +20,7 @@ import {
   readSupabaseCardDatabases,
   readSupabaseCards,
   readSupabaseCardsForUser,
+  readSupabaseTapEventsForCards,
   recordSupabaseTap,
   updateSupabaseCardRedirect
 } from "@/lib/supabase/card-store";
@@ -99,4 +100,17 @@ export async function readCardsForUser(userId: string) {
     () => readSupabaseCardsForUser(userId),
     () => readLocalCardsForUser(userId)
   );
+}
+
+export async function readTapEventsForCards(cardIds: string[]) {
+  if (!hasSupabaseEnv()) {
+    return [];
+  }
+
+  try {
+    return await readSupabaseTapEventsForCards(cardIds);
+  } catch (error) {
+    console.warn("Supabase tap events unavailable.", error);
+    return [];
+  }
 }
