@@ -78,6 +78,18 @@ export default async function DashboardPage() {
         </div>
       </section>
 
+      {profile && !profile.isAuthenticated ? (
+        <section className="px-5 pt-8">
+          <div className="mx-auto max-w-7xl rounded-[2rem] border border-pulse/25 bg-pulse/10 p-5">
+            <p className="text-sm font-semibold text-white">Verify your email to secure this profile</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/62">
+              You can continue activating cards in this browser, but email verification keeps long-term access to your
+              PulseTap products. Open the verification email we sent, then log in with your email and password.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       <CardAnalytics cards={cards} tapEvents={tapEvents} />
       <ProductManager cards={cards} />
     </main>

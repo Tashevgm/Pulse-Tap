@@ -45,13 +45,14 @@ export default async function ActivatePage({ searchParams }: ActivatePageProps) 
         <ActivateForm
           claimToken={detectedCard ? claim : ""}
           initialRedirectUrl={destination}
-          isSignedIn={Boolean(profile?.isAuthenticated)}
+          isSignedIn={Boolean(profile)}
           detectedCard={
             detectedCard
               ? {
                   id: detectedCard.id,
                   label: detectedCard.label,
                   database: detectedCard.database,
+                  activationCode: detectedCard.activationCode,
                   activated: detectedCard.activated
                 }
               : null

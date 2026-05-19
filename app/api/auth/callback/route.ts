@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const authError = requestUrl.searchParams.get("error");
   const authErrorDescription = requestUrl.searchParams.get("error_description");
   const code = requestUrl.searchParams.get("code");
+  const tokenHash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type");
   const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
   const next = requestedNext.startsWith("/") ? requestedNext : "/dashboard";
@@ -18,15 +19,20 @@ export async function GET(request: Request) {
     return NextResponse.redirect(signupUrl);
   }
 
-  if (!code) {
+  if (!code && !tokenHash) {
     const signupUrl = new URL("/signup", requestUrl.origin);
     signupUrl.searchParams.set("error", "missing-code");
-    signupUrl.searchParams.set("message", "Google did not return a login code. Try signing in again.");
+    signupUrl.searchParams.set("message", "The verification link is missing a login code. Try signing in again.");
     return NextResponse.redirect(signupUrl);
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { error } = tokenHash
+    ? await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: type === "recovery" ? "recovery" : "email"
+      })
+    : await supabase.auth.exchangeCodeForSession(code as string);
 
   if (error) {
     const loginUrl = new URL("/login", requestUrl.origin);

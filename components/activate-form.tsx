@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Copy, Loader2, TriangleAlert } from "lucide-react";
 
 type FormState = {
   activationCode: string;
@@ -30,6 +30,7 @@ type ActivateFormProps = {
     id: string;
     label: string;
     database: string;
+    activationCode: string;
     activated: boolean;
   } | null;
 };
@@ -49,6 +50,7 @@ export function ActivateForm({
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ApiResponse | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const isValid = useMemo(() => {
     return (claimToken || form.activationCode.trim().length >= 6) && form.redirectUrl.trim().includes(".");
@@ -112,6 +114,16 @@ export function ActivateForm({
     }
   }
 
+  async function copyActivationCode() {
+    if (!detectedCard?.activationCode) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(detectedCard.activationCode);
+    setCopiedCode(true);
+    window.setTimeout(() => setCopiedCode(false), 1600);
+  }
+
   return (
     <div className="glass rounded-[2rem] p-5 md:p-8">
       <div className="rounded-3xl border border-white/10 bg-black/24 p-4">
@@ -121,6 +133,22 @@ export function ActivateForm({
             ? `${detectedCard.label} (${detectedCard.id}) is ready for activation.`
             : "Open /activate?claim=google-claim-002-ptg to test automatic card detection."}
         </p>
+        {detectedCard?.activationCode ? (
+          <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-pulse/30 bg-pulse/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pulse">Activation code</p>
+              <p className="mt-1 font-mono text-lg font-semibold tracking-wide text-white">{detectedCard.activationCode}</p>
+            </div>
+            <button
+              type="button"
+              onClick={copyActivationCode}
+              className="focus-ring inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-pulse"
+            >
+              {copiedCode ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+              {copiedCode ? "Copied" : "Copy"}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-5">
@@ -150,7 +178,7 @@ export function ActivateForm({
 
         {isSignedIn ? (
           <div className="rounded-3xl border border-volt/25 bg-volt/10 p-4">
-            <p className="text-sm font-semibold text-white/84">Signed in</p>
+            <p className="text-sm font-semibold text-white/84">PulseTap account ready</p>
             <p className="mt-1 text-sm leading-6 text-white/56">
               This product will be connected to your PulseTap profile after activation.
             </p>

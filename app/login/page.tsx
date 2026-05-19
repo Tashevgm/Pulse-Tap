@@ -16,12 +16,12 @@ type LoginPageProps = {
 };
 
 const authErrorTitles: Record<string, string> = {
-  callback: "Google sign in could not finish",
-  "missing-code": "Google did not return a login code",
-  "no-user": "Google account was not returned",
+  callback: "Verification could not finish automatically",
+  "missing-code": "Verification link is missing a code",
+  "no-user": "Account was not returned",
   profile: "PulseTap profile could not be opened",
-  server_error: "Google provider setup needs attention",
-  unexpected_failure: "Google provider setup needs attention"
+  server_error: "Sign in provider setup needs attention",
+  unexpected_failure: "Sign in provider setup needs attention"
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
