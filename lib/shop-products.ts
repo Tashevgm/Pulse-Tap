@@ -55,14 +55,6 @@ export const shopProducts: ShopProduct[] = [
     unitAmount: 1499,
     badge: "Custom design",
     finish: "Custom NFC + QR stand"
-  },
-  {
-    id: "nfc-business-card",
-    productId: "nfc-business-card",
-    priceLabel: "GBP 8.99",
-    unitAmount: 899,
-    badge: "Editable profile",
-    finish: "Premium profile card"
   }
 ];
 

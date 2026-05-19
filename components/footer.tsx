@@ -2,11 +2,14 @@ import Link from "next/link";
 import { Activity } from "lucide-react";
 
 const links = [
-  { href: "/products", label: "Products" },
+  { href: "/shop", label: "Shop" },
   { href: "/activate", label: "Activate" },
   { href: "/dashboard", label: "Profile" },
   { href: "/support", label: "Support" },
-  { href: "https://pulse-menu.com", label: "PulseMenu" }
+  { href: "https://pulse-menu.com", label: "PulseMenu" },
+  { href: "/terms", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/cookies", label: "Cookies" }
 ];
 
 export function Footer() {
