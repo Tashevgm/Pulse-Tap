@@ -15,6 +15,12 @@ type CheckoutSessionResult = {
   url: string | null;
 };
 
+type CheckoutLine = {
+  shopProduct: NonNullable<ReturnType<typeof findShopProduct>>;
+  product: (typeof products)[number];
+  quantity: number;
+};
+
 function isStripeConnectionError(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   return message.toLowerCase().includes("connection to stripe") || message.toLowerCase().includes("request was retried");
@@ -24,18 +30,14 @@ async function createCheckoutSessionWithRest({
   origin,
   customerEmail,
   orderId,
-  productId,
-  productName,
-  productDescription,
-  unitAmount
+  lines,
+  productId
 }: {
   origin: string;
   customerEmail: string;
   orderId: string;
+  lines: CheckoutLine[];
   productId: string;
-  productName: string;
-  productDescription: string;
-  unitAmount: number;
 }): Promise<CheckoutSessionResult> {
   const params = new URLSearchParams();
   params.set("mode", "payment");
@@ -53,12 +55,14 @@ async function createCheckoutSessionWithRest({
   params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]", "2");
   params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]", "business_day");
   params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "5");
-  params.set("line_items[0][quantity]", "1");
-  params.set("line_items[0][price_data][currency]", "gbp");
-  params.set("line_items[0][price_data][unit_amount]", String(unitAmount));
-  params.set("line_items[0][price_data][product_data][name]", productName);
-  params.set("line_items[0][price_data][product_data][description]", productDescription);
-  params.set("line_items[0][price_data][product_data][metadata][pulseTapProductId]", productId);
+  lines.forEach((line, index) => {
+    params.set(`line_items[${index}][quantity]`, String(line.quantity));
+    params.set(`line_items[${index}][price_data][currency]`, "gbp");
+    params.set(`line_items[${index}][price_data][unit_amount]`, String(line.shopProduct.unitAmount));
+    params.set(`line_items[${index}][price_data][product_data][name]`, line.product.title);
+    params.set(`line_items[${index}][price_data][product_data][description]`, line.product.description);
+    params.set(`line_items[${index}][price_data][product_data][metadata][pulseTapProductId]`, line.shopProduct.id);
+  });
   params.set("metadata[pulseTapProductId]", productId);
   params.set("metadata[pulseTapOrderId]", orderId);
 
@@ -88,20 +92,50 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       productId?: string;
+      items?: Array<{
+        productId?: string;
+        quantity?: number;
+      }>;
       customerEmail?: string;
     };
-    const shopProduct = findShopProduct(body.productId ?? "");
-    const product = products.find((item) => item.id === shopProduct?.productId);
+    const requestedItems =
+      body.items && body.items.length > 0
+        ? body.items
+        : body.productId
+          ? [{ productId: body.productId, quantity: 1 }]
+          : [];
+    const lines = requestedItems
+      .map((item) => {
+        const quantity = Math.max(0, Math.min(Number(item.quantity ?? 1), 20));
+        const shopProduct = findShopProduct(item.productId ?? "");
+        const product = products.find((productItem) => productItem.id === shopProduct?.productId);
 
-    if (!shopProduct || !product) {
+        return shopProduct && product && quantity > 0
+          ? {
+              shopProduct,
+              product,
+              quantity
+            }
+          : null;
+      })
+      .filter(Boolean) as CheckoutLine[];
+
+    if (lines.length === 0) {
       return NextResponse.json(
         {
           ok: false,
-          message: "Product is not available for checkout."
+          message: "Add at least one available product to checkout."
         },
         { status: 404 }
       );
     }
+
+    const subtotal = lines.reduce((sum, line) => sum + line.shopProduct.unitAmount * line.quantity, 0);
+    const productName =
+      lines.length === 1
+        ? lines[0].product.title
+        : `${lines.reduce((sum, line) => sum + line.quantity, 0)} PulseTap products`;
+    const productId = lines.length === 1 ? lines[0].shopProduct.id : "cart";
 
     const requestUrl = new URL(request.url);
     const cookieStore = await cookies();
@@ -120,11 +154,11 @@ export async function POST(request: Request) {
     }
 
     const order = await createPendingCheckoutOrder({
-      productId: shopProduct.id,
-      productName: product.title,
+      productId,
+      productName,
       customerEmail,
       profileId: profile?.id,
-      amount: shopProduct.unitAmount + deliveryAmount,
+      amount: subtotal + deliveryAmount,
       currency: "gbp"
     });
     let session: CheckoutSessionResult;
@@ -162,24 +196,22 @@ export async function POST(request: Request) {
             }
           }
         ],
-        line_items: [
-          {
-            quantity: 1,
-            price_data: {
-              currency: "gbp",
-              unit_amount: shopProduct.unitAmount,
-              product_data: {
-                name: product.title,
-                description: product.description,
-                metadata: {
-                  pulseTapProductId: shopProduct.id
-                }
+        line_items: lines.map((line) => ({
+          quantity: line.quantity,
+          price_data: {
+            currency: "gbp",
+            unit_amount: line.shopProduct.unitAmount,
+            product_data: {
+              name: line.product.title,
+              description: line.product.description,
+              metadata: {
+                pulseTapProductId: line.shopProduct.id
               }
             }
           }
-        ],
+        })),
         metadata: {
-          pulseTapProductId: shopProduct.id,
+          pulseTapProductId: productId,
           pulseTapOrderId: order.id
         }
       });
@@ -192,10 +224,8 @@ export async function POST(request: Request) {
         origin: requestUrl.origin,
         customerEmail,
         orderId: order.id,
-        productId: shopProduct.id,
-        productName: product.title,
-        productDescription: product.description,
-        unitAmount: shopProduct.unitAmount
+        productId,
+        lines
       });
     }
 

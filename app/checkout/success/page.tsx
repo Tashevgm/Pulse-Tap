@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, PackageCheck } from "lucide-react";
+import { ClearCart } from "@/components/clear-cart";
 
 export const metadata: Metadata = {
   title: "Order Complete",
@@ -18,6 +19,7 @@ export default async function CheckoutSuccessPage({ searchParams }: SuccessPageP
 
   return (
     <main className="min-h-screen bg-premium-radial px-5 py-16">
+      <ClearCart />
       <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 text-center md:p-10">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-volt/15 text-volt">
           <CheckCircle2 className="h-8 w-8" />

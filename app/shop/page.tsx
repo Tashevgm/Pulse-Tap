@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, PackageCheck, ShieldCheck, Truck } from "lucide-react";
 import { products } from "@/lib/products";
 import { shopProducts } from "@/lib/shop-products";
-import { CheckoutButton } from "@/components/checkout-button";
+import { ShopCart } from "@/components/shop-cart";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -20,6 +19,21 @@ const trustItems = [
 
 export default function ShopPage() {
   const productById = new Map(products.map((product) => [product.id, product]));
+  const shopItems = shopProducts
+    .map((shopProduct) => {
+      const product = productById.get(shopProduct.productId);
+
+      return product
+        ? {
+            ...shopProduct,
+            title: product.title,
+            category: product.category,
+            description: product.description,
+            image: product.image
+          }
+        : null;
+    })
+    .filter((item) => item !== null);
 
   return (
     <main className="bg-ink">
@@ -61,60 +75,7 @@ export default function ShopPage() {
         </div>
       </section>
 
-      <section id="shop-grid" className="px-5 py-14 md:py-16">
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {shopProducts.map((shopProduct) => {
-            const product = productById.get(shopProduct.productId);
-
-            if (!product) {
-              return null;
-            }
-
-            return (
-              <article key={shopProduct.id} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045]">
-                <div className="relative h-72 overflow-hidden bg-white">
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    sizes="(max-width: 1280px) 100vw, 33vw"
-                    quality={100}
-                    className={`transition duration-500 group-hover:scale-105 ${
-                      product.id === "instagram-card" || product.id === "facebook-card" ? "object-contain p-3" : "object-cover"
-                    }`}
-                  />
-                  <div className="absolute left-4 top-4 rounded-full border border-white/18 bg-black/50 px-3 py-1 text-xs font-semibold">
-                    {shopProduct.badge}
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-pulse">{product.category}</p>
-                      <h2 className="mt-2 text-2xl font-semibold tracking-tight">{product.title}</h2>
-                    </div>
-                    <p className="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-semibold text-ink">
-                      {shopProduct.priceLabel}
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/60">{product.description}</p>
-                  <p className="mt-4 text-sm font-semibold text-white/78">{shopProduct.finish}</p>
-                  <div className="mt-5 flex flex-wrap items-start gap-3">
-                    <CheckoutButton productId={shopProduct.id} />
-                    <Link
-                      href="/support"
-                      className="focus-ring inline-flex items-center rounded-full border border-white/14 px-4 py-2 text-sm font-semibold text-white/78 transition hover:text-white"
-                    >
-                      Setup guide
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+      <ShopCart items={shopItems} />
 
       <section className="px-5 pb-20">
         <div className="mx-auto grid max-w-7xl gap-5 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 md:grid-cols-[1fr_auto] md:items-center">

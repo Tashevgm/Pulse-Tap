@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, Clock3, MousePointerClick, Star, TrendingUp } from "lucide-react";
+import { BarChart3, CalendarDays, Clock3, MousePointerClick, Star, TrendingUp } from "lucide-react";
 import type { Card } from "@/lib/cards";
 import type { TapEvent } from "@/lib/supabase/card-store";
 
@@ -37,6 +37,49 @@ function formatShortDate(value: Date) {
     day: "2-digit",
     month: "short"
   }).format(value);
+}
+
+function formatLongDate(value?: string) {
+  if (!value) {
+    return "No taps yet";
+  }
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function formatRangeDate(value: Date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short"
+  }).format(value);
+}
+
+function formatRelativeTime(value?: string) {
+  if (!value) {
+    return "No activity yet";
+  }
+
+  const diffMs = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.round(diffMs / 60000));
+
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
+
+  const hours = Math.round(minutes / 60);
+
+  if (hours < 24) {
+    return `${hours} hours ago`;
+  }
+
+  const days = Math.round(hours / 24);
+  return `${days} days ago`;
 }
 
 function localDateKey(value: Date | string) {
@@ -195,6 +238,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
     const trend = buildTrend(scopedEvents, range, startDate);
     const maxTrend = Math.max(...trend.map((day) => day.count), 1);
     const previousPeriodTaps = countPreviousPeriodEvents(tapEvents, range);
+    const bestDay = [...trend].sort((a, b) => b.count - a.count)[0];
+    const rangeEnd = startOfLocalDay(new Date());
 
     return {
       scopedEvents,
@@ -205,7 +250,10 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
       lastTap,
       trend,
       maxTrend,
-      previousPeriodTaps
+      previousPeriodTaps,
+      bestDay,
+      startDate,
+      rangeEnd
     };
   }, [cards, range, tapEvents]);
 
@@ -214,111 +262,197 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
   }
 
   const rangeLabel = ranges.find((item) => item.key === range)?.label ?? "Selected period";
+  const previousChange =
+    analytics.previousPeriodTaps === null
+      ? null
+      : analytics.previousPeriodTaps === 0
+        ? analytics.totalTaps > 0
+          ? "New activity"
+          : "No previous activity"
+        : `${analytics.totalTaps >= analytics.previousPeriodTaps ? "+" : ""}${Math.round(
+            ((analytics.totalTaps - analytics.previousPeriodTaps) / analytics.previousPeriodTaps) * 100
+          )}% vs previous ${rangeLabel.toLowerCase()}`;
+  const dateWindow = `${formatRangeDate(analytics.startDate)} - ${formatRangeDate(analytics.rangeEnd)} ${analytics.rangeEnd.getFullYear()}`;
+  const topCardActivity = analytics.cardsWithActivity[0]?.scopedTaps ?? 0;
 
   return (
     <section className="px-5 pt-10">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04]">
-        <div className="grid gap-6 border-b border-white/10 p-5 md:grid-cols-[1fr_auto] md:items-end md:p-6">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#080c12]/85 shadow-soft">
+        <div className="grid gap-6 border-b border-white/8 bg-gradient-to-br from-white/[0.045] via-transparent to-pulse/[0.035] p-5 md:grid-cols-[1fr_auto] md:items-start md:p-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pulse">Activity</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Card analytics</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/58">
-              Track taps and redirect visits across your active products. Review products show review page visits, not
-              confirmed Google reviews.
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pulse">Analytics</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Card analytics</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68">
+              Track taps and redirect visits across your active products. PulseTap tracks taps and redirect visits. It
+              does not confirm whether a customer submitted a Google review.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-black/20 p-1">
-            {ranges.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => setRange(item.key)}
-                className={`focus-ring rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  range === item.key ? "bg-white text-ink" : "text-white/60 hover:text-white"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="flex flex-col gap-3 md:items-end">
+            <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-black/30 p-1">
+              {ranges.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setRange(item.key)}
+                  className={`focus-ring rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                    range === item.key
+                      ? "border border-pulse bg-pulse/10 text-white shadow-[0_0_24px_rgba(77,243,255,0.16)]"
+                      : "text-white/54 hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <div className="inline-flex items-center rounded-full border border-white/10 bg-black/24 px-4 py-2 text-sm text-white/68">
+              <CalendarDays className="mr-2 h-4 w-4 text-white/42" />
+              {dateWindow}
+            </div>
           </div>
         </div>
 
         <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4 md:p-6">
           {[
-            { label: `Taps in ${rangeLabel.toLowerCase()}`, value: analytics.totalTaps, icon: MousePointerClick },
-            { label: "Active cards", value: analytics.activeCards, icon: Star },
-            { label: "Top product", value: analytics.topCard?.label ?? "None", icon: BarChart3 },
-            { label: "Last tap", value: formatDateTime(analytics.lastTap), icon: Clock3 }
+            {
+              label: `Taps in ${rangeLabel.toLowerCase()}`,
+              value: analytics.totalTaps,
+              detail: previousChange,
+              icon: MousePointerClick
+            },
+            {
+              label: "Active cards",
+              value: analytics.activeCards,
+              detail: analytics.activeCards === cards.length ? "All systems active" : `${cards.length - analytics.activeCards} inactive`,
+              icon: Star
+            },
+            {
+              label: "Top card",
+              value: analytics.topCard?.label ?? "None",
+              detail: topCardActivity ? `${topCardActivity} taps` : "No taps yet",
+              icon: BarChart3
+            },
+            {
+              label: "Last tap",
+              value: formatLongDate(analytics.lastTap),
+              detail: formatRelativeTime(analytics.lastTap),
+              icon: Clock3
+            }
           ].map((stat) => (
-            <div key={stat.label} className="rounded-3xl border border-white/10 bg-black/18 p-4">
-              <stat.icon className="h-5 w-5 text-pulse" />
-              <p className="mt-4 text-sm text-white/46">{stat.label}</p>
-              <p className="mt-1 line-clamp-2 text-xl font-semibold leading-tight">{stat.value}</p>
+            <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <div className="flex items-center gap-3">
+                <stat.icon className="h-5 w-5 text-pulse" />
+                <p className="text-sm text-white/58">{stat.label}</p>
+              </div>
+              <p className="mt-4 line-clamp-2 text-2xl font-semibold leading-tight">{stat.value}</p>
+              <p className={`mt-2 text-xs ${stat.detail?.startsWith("+") || stat.detail === "New activity" || stat.detail === "All systems active" ? "text-volt" : "text-white/42"}`}>
+                {stat.detail}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="px-5 pb-5 md:px-6 md:pb-6">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { key: "trend" as const, label: "Trend" },
-              { key: "products" as const, label: "Products" }
-            ].map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => setView(item.key)}
-                className={`focus-ring rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  view === item.key
-                    ? "border-pulse bg-pulse text-ink"
-                    : "border-white/12 text-white/70 hover:text-white"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           {view === "trend" ? (
-            <div className="mt-4 rounded-3xl border border-white/10 bg-black/18 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold">Tap trend</h3>
-                  <p className="mt-1 text-sm text-white/50">
-                    Daily visits from activation date within the selected period.
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-pulse" />
+                    <h3 className="text-xl font-semibold">Tap trend</h3>
+                  </div>
+                  <p className="mt-2 text-sm text-white/54">
+                    Daily taps from {dateWindow}
                   </p>
                 </div>
-                {analytics.previousPeriodTaps !== null ? (
-                  <div className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-sm text-white/62">
-                    <TrendingUp className="mr-2 h-4 w-4 text-pulse" />
-                    Previous period {analytics.previousPeriodTaps}
-                  </div>
-                ) : null}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { key: "trend" as const, label: "Taps" },
+                    { key: "products" as const, label: "Products" }
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setView(item.key)}
+                      className={`focus-ring rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        view === item.key
+                          ? "border-white/14 bg-white/8 text-white"
+                          : "border-white/10 text-white/54 hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-5 flex h-48 items-end gap-1.5 overflow-x-auto pb-2">
+              <div className="mt-8 grid grid-cols-[auto_1fr] gap-3">
+                <div className="flex h-48 flex-col justify-between pb-9 text-xs text-white/42">
+                  {[analytics.maxTrend, Math.ceil(analytics.maxTrend * 0.66), Math.ceil(analytics.maxTrend * 0.33), 0].map((value, index) => (
+                    <span key={`${value}-${index}`}>{value}</span>
+                  ))}
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-x-0 top-0 h-px bg-white/8" />
+                  <div className="absolute inset-x-0 top-1/3 h-px bg-white/8" />
+                  <div className="absolute inset-x-0 top-2/3 h-px bg-white/8" />
+                  <div className="absolute inset-x-0 bottom-9 h-px bg-white/10" />
+                  <div className="relative flex h-48 items-end gap-2 overflow-x-auto pb-2">
                 {analytics.trend.map((day) => (
-                  <div key={day.key} className="flex min-w-10 flex-1 flex-col items-center gap-2">
-                    <div className="flex h-32 w-full min-w-8 items-end rounded-full bg-white/5">
+                  <div key={day.key} className="group relative flex min-w-16 flex-1 flex-col items-center gap-2">
+                    <span className="text-sm font-semibold text-white">{day.count > 0 ? day.count : ""}</span>
+                    <div className="flex h-32 w-full min-w-10 items-end justify-center">
                       <div
-                        className="w-full rounded-full bg-gradient-to-t from-pulse to-cyan-300"
+                        className="w-full max-w-16 rounded-t-lg bg-gradient-to-t from-[#0b6f7d] via-[#12bfd1] to-pulse shadow-[0_0_24px_rgba(77,243,255,0.18)] transition group-hover:brightness-125"
                         title={`${day.fullLabel}: ${day.count} taps`}
                         style={{
-                          height: `${Math.max((day.count / analytics.maxTrend) * 100, day.count > 0 ? 12 : 3)}%`
+                          height: `${Math.max((day.count / analytics.maxTrend) * 100, day.count > 0 ? 18 : 2)}%`
                         }}
                       />
                     </div>
                     <div className="text-center">
-                      <p className="text-xs font-semibold text-white/72">{day.count}</p>
+                      <p className="text-xs font-semibold text-white/72">{day.fullLabel.split(" ")[0]}</p>
                       <p className="text-[11px] text-white/42">{day.label}</p>
+                    </div>
+                    <div className="pointer-events-none absolute bottom-44 hidden w-44 rounded-2xl border border-white/10 bg-[#0b0e14] p-3 text-left text-xs shadow-soft group-hover:block">
+                      <p className="font-semibold text-white">{day.fullLabel}</p>
+                      <p className="mt-2 text-pulse">Taps: {day.count}</p>
+                      <p className="mt-1 text-pulse">Redirect visits: {analytics.totalTaps}</p>
                     </div>
                   </div>
                 ))}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold">Product activity</h3>
+                  <p className="mt-2 text-sm text-white/54">Tap performance by card for {dateWindow}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { key: "trend" as const, label: "Taps" },
+                    { key: "products" as const, label: "Products" }
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setView(item.key)}
+                      className={`focus-ring rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        view === item.key
+                          ? "border-white/14 bg-white/8 text-white"
+                          : "border-white/10 text-white/54 hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
               {analytics.cardsWithActivity.map(({ card, scopedTaps, allTimeTaps }) => {
                 const maxCardTaps = Math.max(...analytics.cardsWithActivity.map((item) => item.scopedTaps), 1);
 
@@ -363,6 +497,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                   </div>
                 );
               })}
+            </div>
             </div>
           )}
         </div>
