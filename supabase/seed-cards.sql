@@ -31,3 +31,14 @@ values
   ('PTF009', 'FACEBOOK-009', 'facebook-claim-009-ptf', 'facebook', 'facebook', 'Facebook card 009'),
   ('PTF010', 'FACEBOOK-010', 'facebook-claim-010-ptf', 'facebook', 'facebook', 'Facebook card 010')
 on conflict (id) do nothing;
+
+insert into public.b2b_customer_cards (id, activation_code, claim_token, card_type, card_database, label)
+select
+  'PTB' || lpad(card_number::text, 3, '0'),
+  'B2B-' || lpad(card_number::text, 3, '0'),
+  'b2b-claim-' || lpad(card_number::text, 3, '0') || '-ptb',
+  'b2b-customer'::public.card_type,
+  'b2b'::public.card_database,
+  'B2B customer card ' || lpad(card_number::text, 3, '0')
+from generate_series(1, 500) as card_number
+on conflict (id) do nothing;

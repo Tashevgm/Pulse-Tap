@@ -2,9 +2,12 @@ export type CardType =
   | "google-review"
   | "instagram"
   | "facebook"
+  | "b2b-customer"
   | "google-review-stand";
 
-export type CardDatabase = "google" | "instagram" | "facebook";
+export const CARD_DATABASES = ["google", "instagram", "facebook", "b2b"] as const;
+
+export type CardDatabase = (typeof CARD_DATABASES)[number];
 
 export type Card = {
   id: string;
@@ -28,7 +31,8 @@ function createSeedCards({
   activationPrefix,
   type,
   label,
-  activeRedirect
+  activeRedirect,
+  count = 10
 }: {
   database: CardDatabase;
   prefix: string;
@@ -36,8 +40,9 @@ function createSeedCards({
   type: CardType;
   label: string;
   activeRedirect: string;
+  count?: number;
 }): Card[] {
-  return Array.from({ length: 10 }, (_, index) => {
+  return Array.from({ length: count }, (_, index) => {
     const number = String(index + 1).padStart(3, "0");
     return {
       id: `${prefix}${number}`,
@@ -78,6 +83,15 @@ export const seedCardDatabases: Record<CardDatabase, Card[]> = {
     type: "facebook",
     label: "Facebook card",
     activeRedirect: "https://www.facebook.com"
+  }),
+  b2b: createSeedCards({
+    database: "b2b",
+    prefix: "PTB",
+    activationPrefix: "B2B",
+    type: "b2b-customer",
+    label: "B2B customer card",
+    activeRedirect: "https://www.pulse-tap.com",
+    count: 500
   })
 };
 

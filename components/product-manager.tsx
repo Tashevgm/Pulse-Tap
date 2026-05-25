@@ -23,6 +23,7 @@ type ProductManagerProps = {
 };
 
 const productAccent: Record<Card["type"], string> = {
+  "b2b-customer": "from-emerald-400/24 to-pulse/12",
   facebook: "from-blue-500/26 to-pulse/12",
   "google-review": "from-volt/24 to-pulse/12",
   "google-review-stand": "from-volt/24 to-pulse/12",
@@ -30,6 +31,7 @@ const productAccent: Record<Card["type"], string> = {
 };
 
 const productTypeLabel: Record<Card["type"], string> = {
+  "b2b-customer": "B2B customer card",
   facebook: "Facebook tap card",
   "google-review": "Google review card",
   "google-review-stand": "Google review stand",

@@ -92,6 +92,10 @@ function formatRelativeTime(value?: string) {
 }
 
 function productLabel(card: Card) {
+  if (card.type === "b2b-customer") {
+    return "B2B customer card";
+  }
+
   if (card.type === "google-review") {
     return "Google review card";
   }

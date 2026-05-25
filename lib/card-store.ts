@@ -1,17 +1,18 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { unstable_noStore as noStore } from "next/cache";
-import { normalizeUrl, seedCardDatabases, type Card, type CardDatabase } from "@/lib/cards";
+import { CARD_DATABASES, normalizeUrl, seedCardDatabases, type Card, type CardDatabase } from "@/lib/cards";
 
 const dataDirectory = path.join(process.cwd(), "data");
 
 const databaseFiles: Record<CardDatabase, string> = {
   google: path.join(dataDirectory, "google-cards.json"),
   instagram: path.join(dataDirectory, "instagram-cards.json"),
-  facebook: path.join(dataDirectory, "facebook-cards.json")
+  facebook: path.join(dataDirectory, "facebook-cards.json"),
+  b2b: path.join(dataDirectory, "b2b-cards.json")
 };
 
-const databases = Object.keys(databaseFiles) as CardDatabase[];
+const databases = CARD_DATABASES;
 
 async function ensureDatabaseFile(database: CardDatabase) {
   await mkdir(dataDirectory, { recursive: true });

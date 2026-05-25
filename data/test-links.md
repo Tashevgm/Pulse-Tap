@@ -41,6 +41,19 @@ Program these tap links into NFC/QR while testing locally. Before activation the
 - PTF009 | FACEBOOK-009 | http://127.0.0.1:3000/t/facebook-claim-009-ptf
 - PTF010 | FACEBOOK-010 | http://127.0.0.1:3000/t/facebook-claim-010-ptf
 
+## B2B Customers
+
+- PTB001 | B2B-001 | http://127.0.0.1:3000/t/b2b-claim-001-ptb
+- PTB002 | B2B-002 | http://127.0.0.1:3000/t/b2b-claim-002-ptb
+- PTB003 | B2B-003 | http://127.0.0.1:3000/t/b2b-claim-003-ptb
+- PTB004 | B2B-004 | http://127.0.0.1:3000/t/b2b-claim-004-ptb
+- PTB005 | B2B-005 | http://127.0.0.1:3000/t/b2b-claim-005-ptb
+- PTB006 | B2B-006 | http://127.0.0.1:3000/t/b2b-claim-006-ptb
+- PTB007 | B2B-007 | http://127.0.0.1:3000/t/b2b-claim-007-ptb
+- PTB008 | B2B-008 | http://127.0.0.1:3000/t/b2b-claim-008-ptb
+- PTB009 | B2B-009 | http://127.0.0.1:3000/t/b2b-claim-009-ptb
+- PTB010 | B2B-010 | http://127.0.0.1:3000/t/b2b-claim-010-ptb
+
 After activation, the public redirect link is:
 
 ```text

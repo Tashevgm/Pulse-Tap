@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, Box, Link2, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Box, Database, Link2, Sparkles } from "lucide-react";
 import { CardAnalytics } from "@/components/card-analytics";
 import { ProductManager } from "@/components/product-manager";
 import { readCardsForUser, readTapEventsForCards } from "@/lib/card-repository";
@@ -20,6 +20,7 @@ export default async function DashboardPage() {
   const accountEmail = profile?.email ?? "Sign in to manage your cards";
   const cards = profile ? await readCardsForUser(profile.id) : [];
   const tapEvents = cards.length ? await readTapEventsForCards(cards.map((card) => card.id)) : [];
+  const b2bCards = cards.filter((card) => card.database === "b2b");
   const activeProducts = cards.filter((card) => card.activated).length;
   const totalTaps = cards.reduce((sum, card) => sum + card.taps, 0);
 
@@ -73,7 +74,15 @@ export default async function DashboardPage() {
                 Activate your first product
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-            ) : null}
+            ) : (
+              <Link
+                href="/dashboard/b2b"
+                className="focus-ring mt-4 inline-flex items-center rounded-full border border-white/14 px-5 py-3 text-sm font-semibold text-white/78 transition hover:border-pulse hover:text-white"
+              >
+                <Database className="mr-2 h-4 w-4" />
+                B2B database ({b2bCards.length})
+              </Link>
+            )}
           </div>
         </div>
       </section>

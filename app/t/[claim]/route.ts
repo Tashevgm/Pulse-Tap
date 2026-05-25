@@ -15,7 +15,7 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.redirect(new URL("/activate", request.url));
   }
 
-  if (!card.activated || !card.redirectUrl) {
+  if (!card.redirectUrl) {
     const activateUrl = new URL("/activate", request.url);
     activateUrl.searchParams.set("claim", card.claimToken);
     return NextResponse.redirect(activateUrl);

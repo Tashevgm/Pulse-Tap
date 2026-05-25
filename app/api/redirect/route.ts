@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const id = searchParams.get("id") ?? "";
   const card = await findCardById(id);
 
-  if (!card || !card.activated || !card.redirectUrl) {
+  if (!card || !card.redirectUrl) {
     const activateUrl = new URL("/activate", request.url);
 
     if (card?.claimToken) {
