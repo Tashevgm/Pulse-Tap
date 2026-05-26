@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, ArrowRight } from "lucide-react";
+import { Activity, ArrowRight, UserRound } from "lucide-react";
 import { cookies } from "next/headers";
 import { getCurrentProfile } from "@/lib/user-repository";
 
@@ -33,6 +33,13 @@ export async function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard"
+            aria-label="Open profile"
+            className="focus-ring inline-grid h-10 w-10 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:bg-white/14 md:hidden"
+          >
+            <UserRound className="h-4 w-4" />
+          </Link>
           {isSignedIn ? (
             <form action="/api/auth/logout" method="post">
               <button
