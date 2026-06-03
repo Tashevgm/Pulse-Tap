@@ -26,7 +26,7 @@ export const products: Product[] = [
     title: "Google Review Card",
     category: "Google Review",
     description: "Send customers straight to your review page with a single tap or scan.",
-    image: "/images/white-google-card.png",
+    image: "/images/google-white-card.png",
     accent: "from-pulse/35 to-volt/25",
     cta: "View review cards"
   },

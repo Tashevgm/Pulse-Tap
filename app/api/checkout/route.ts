@@ -18,6 +18,8 @@ type CheckoutSessionResult = {
 type CheckoutLine = {
   shopProduct: NonNullable<ReturnType<typeof findShopProduct>>;
   product: (typeof products)[number];
+  title: string;
+  description: string;
   quantity: number;
 };
 
@@ -59,8 +61,8 @@ async function createCheckoutSessionWithRest({
     params.set(`line_items[${index}][quantity]`, String(line.quantity));
     params.set(`line_items[${index}][price_data][currency]`, "gbp");
     params.set(`line_items[${index}][price_data][unit_amount]`, String(line.shopProduct.unitAmount));
-    params.set(`line_items[${index}][price_data][product_data][name]`, line.product.title);
-    params.set(`line_items[${index}][price_data][product_data][description]`, line.product.description);
+    params.set(`line_items[${index}][price_data][product_data][name]`, line.title);
+    params.set(`line_items[${index}][price_data][product_data][description]`, line.description);
     params.set(`line_items[${index}][price_data][product_data][metadata][pulseTapProductId]`, line.shopProduct.id);
   });
   params.set("metadata[pulseTapProductId]", productId);
@@ -114,6 +116,8 @@ export async function POST(request: Request) {
           ? {
               shopProduct,
               product,
+              title: shopProduct.title ?? product.title,
+              description: shopProduct.description ?? product.description,
               quantity
             }
           : null;
@@ -133,7 +137,7 @@ export async function POST(request: Request) {
     const subtotal = lines.reduce((sum, line) => sum + line.shopProduct.unitAmount * line.quantity, 0);
     const productName =
       lines.length === 1
-        ? lines[0].product.title
+        ? lines[0].title
         : `${lines.reduce((sum, line) => sum + line.quantity, 0)} PulseTap products`;
     const productId = lines.length === 1 ? lines[0].shopProduct.id : "cart";
 
@@ -202,8 +206,8 @@ export async function POST(request: Request) {
             currency: "gbp",
             unit_amount: line.shopProduct.unitAmount,
             product_data: {
-              name: line.product.title,
-              description: line.product.description,
+              name: line.title,
+              description: line.description,
               metadata: {
                 pulseTapProductId: line.shopProduct.id
               }

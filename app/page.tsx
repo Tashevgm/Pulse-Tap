@@ -88,13 +88,13 @@ export default function Home() {
             <div className="glass relative mx-auto max-w-[520px] rounded-[2rem] p-4">
               <div className="relative h-[430px] overflow-hidden rounded-[1.5rem]">
                 <Image
-                  src="/images/white-google-card.png"
+                  src="/images/google-white-card.png"
                   alt="Premium smart card and phone product setup"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 520px"
                   quality={100}
-                  className="object-cover"
+                  className="object-contain p-4"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 rounded-3xl border border-white/12 bg-black/45 p-4 backdrop-blur-xl">
@@ -130,7 +130,7 @@ export default function Home() {
                   sizes="(max-width: 768px) 100vw, 33vw"
                   quality={100}
                   className={`transition duration-500 group-hover:scale-105 ${
-                    product.id === "instagram-card" || product.id === "facebook-card" ? "object-contain p-3" : "object-cover"
+                    product.image.endsWith(".png") ? "object-contain p-3" : "object-cover"
                   }`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />

@@ -150,6 +150,7 @@ export function ShopCart({ items }: ShopCartProps) {
         <div className="grid gap-5 md:grid-cols-2">
           {items.map((item) => {
             const quantity = getQuantity(item.id);
+            const isProductPhoto = item.image.endsWith(".png");
 
             return (
               <article key={item.id} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.045]">
@@ -160,9 +161,7 @@ export function ShopCart({ items }: ShopCartProps) {
                     fill
                     sizes="(max-width: 1280px) 100vw, 50vw"
                     quality={100}
-                    className={`transition duration-500 group-hover:scale-105 ${
-                      item.productId === "instagram-card" || item.productId === "facebook-card" ? "object-contain p-3" : "object-cover"
-                    }`}
+                    className={`transition duration-500 group-hover:scale-105 ${isProductPhoto ? "object-contain p-3" : "object-cover"}`}
                   />
                   <div className="absolute left-4 top-4 rounded-full border border-white/18 bg-black/50 px-3 py-1 text-xs font-semibold">
                     {item.badge}

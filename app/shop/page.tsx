@@ -26,10 +26,10 @@ export default function ShopPage() {
       return product
         ? {
             ...shopProduct,
-            title: product.title,
-            category: product.category,
-            description: product.description,
-            image: product.image
+            title: shopProduct.title ?? product.title,
+            category: shopProduct.category ?? product.category,
+            description: shopProduct.description ?? product.description,
+            image: shopProduct.image ?? product.image
           }
         : null;
     })
