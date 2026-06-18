@@ -25,3 +25,5 @@ Thumbs.db
 
 # local source uploads copied into public/images for the app
 /Images/
+
+.vercel
