@@ -6,8 +6,8 @@ build
 .env
 .env*.local
 
-Images
-Excel_sheet
+/Images/
+/Excel_sheet/
 
 *.log
 tsconfig.tsbuildinfo
