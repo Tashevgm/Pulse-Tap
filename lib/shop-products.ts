@@ -16,8 +16,8 @@ export const shopProducts: ShopProduct[] = [
     id: "google-review-card",
     productId: "google-review-card",
     image: "/images/google-white-card.png",
-    priceLabel: "GBP 8.99",
-    unitAmount: 899,
+    priceLabel: "GBP 7.99",
+    unitAmount: 799,
     badge: "Best for reviews",
     finish: "White NFC card"
   },
@@ -85,8 +85,8 @@ export const shopProducts: ShopProduct[] = [
     id: "instagram-card",
     productId: "instagram-card",
     image: "/images/instagram-card.png",
-    priceLabel: "GBP 8.99",
-    unitAmount: 899,
+    priceLabel: "GBP 7.99",
+    unitAmount: 799,
     badge: "Social growth",
     finish: "Gradient NFC card"
   },
@@ -118,8 +118,8 @@ export const shopProducts: ShopProduct[] = [
     id: "facebook-card",
     productId: "facebook-card",
     image: "/images/facebook-card.png",
-    priceLabel: "GBP 8.99",
-    unitAmount: 899,
+    priceLabel: "GBP 7.99",
+    unitAmount: 799,
     badge: "Facebook ready",
     finish: "Blue NFC card"
   },
@@ -154,8 +154,8 @@ export const shopProducts: ShopProduct[] = [
     category: "Bundle",
     description: "A mixed NFC card bundle for reviews and social growth across your main customer channels.",
     image: "/images/starter-bundle.png",
-    priceLabel: "GBP 26.97",
-    unitAmount: 2697,
+    priceLabel: "GBP 17.99",
+    unitAmount: 1799,
     badge: "Bundle",
     finish: "Google, Instagram and Facebook NFC cards"
   },
@@ -178,8 +178,8 @@ export const shopProducts: ShopProduct[] = [
   {
     id: "custom-stand",
     productId: "custom-stand",
-    priceLabel: "GBP 14.99",
-    unitAmount: 1499,
+    priceLabel: "GBP 19.99",
+    unitAmount: 1999,
     badge: "Custom design",
     finish: "Custom NFC + QR stand"
   }
