@@ -80,10 +80,10 @@ export default function ShopPage() {
       <section className="px-5 pb-20">
         <div className="mx-auto grid max-w-7xl gap-5 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pulse">Stripe test checkout</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pulse">Secure checkout</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">Secure checkout powered by Stripe.</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
-              Payments are currently in test mode. Orders open Stripe Checkout with shipping address collection for the UK and Ireland.
+              Orders open Stripe Checkout with encrypted payment processing and shipping address collection for the UK and Ireland.
             </p>
           </div>
           <Link

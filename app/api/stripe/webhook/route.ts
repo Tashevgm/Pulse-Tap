@@ -29,13 +29,30 @@ export async function POST(request: Request) {
   const body = await request.text();
   const stripe = createStripeClient();
 
+  if (!webhookSecret) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Missing STRIPE_WEBHOOK_SECRET."
+      },
+      { status: 500 }
+    );
+  }
+
+  if (!signature) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Missing Stripe signature."
+      },
+      { status: 400 }
+    );
+  }
+
   let event: Stripe.Event;
 
   try {
-    event =
-      signature && webhookSecret
-        ? stripe.webhooks.constructEvent(body, signature, webhookSecret)
-        : (JSON.parse(body) as Stripe.Event);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
     return NextResponse.json(
       {

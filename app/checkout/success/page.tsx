@@ -5,18 +5,10 @@ import { ClearCart } from "@/components/clear-cart";
 
 export const metadata: Metadata = {
   title: "Order Complete",
-  description: "Your PulseTap test checkout is complete."
+  description: "Your PulseTap checkout is complete."
 };
 
-type SuccessPageProps = {
-  searchParams: Promise<{
-    session_id?: string;
-  }>;
-};
-
-export default async function CheckoutSuccessPage({ searchParams }: SuccessPageProps) {
-  const { session_id: sessionId = "" } = await searchParams;
-
+export default function CheckoutSuccessPage() {
   return (
     <main className="min-h-screen bg-premium-radial px-5 py-16">
       <ClearCart />
@@ -27,14 +19,8 @@ export default async function CheckoutSuccessPage({ searchParams }: SuccessPageP
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.34em] text-pulse">Checkout Complete</p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">Your PulseTap order is confirmed.</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/62">
-          Stripe test checkout completed successfully. The next production step is connecting this payment to order fulfilment and card allocation.
+          Payment has been received. We will prepare your PulseTap product for delivery and send the order details by email.
         </p>
-
-        {sessionId ? (
-          <p className="mx-auto mt-5 max-w-xl break-all rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs text-white/48">
-            Stripe session: {sessionId}
-          </p>
-        ) : null}
 
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
