@@ -135,7 +135,7 @@ export function CookieConsent() {
               <span>
                 <span className="font-semibold text-white">Analytics cookies</span>
                 <span className="mt-1 block text-sm leading-6 text-white/60">
-                  Help us understand website usage. PulseTap does not currently load optional analytics cookies.
+                  Help us understand website usage through Microsoft Clarity.
                 </span>
               </span>
               <input

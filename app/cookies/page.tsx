@@ -64,9 +64,9 @@ export default function CookiesPage() {
           title: "Analytics and marketing cookies",
           body: (
             <p>
-              PulseTap does not currently set optional analytics or advertising cookies from the website. If we add
-              optional analytics or marketing tools later, we will update this policy and provide any consent controls
-              required before using them.
+              PulseTap uses Microsoft Clarity only when analytics cookies are allowed. Clarity helps us understand how
+              visitors use the website through usage analytics and session insights. PulseTap does not currently load
+              optional advertising or retargeting cookies from the website.
             </p>
           )
         },

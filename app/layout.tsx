@@ -4,6 +4,7 @@ import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { CookieConsent } from "@/components/cookie-consent";
+import { ClarityAnalytics } from "@/components/clarity-analytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <ClarityAnalytics />
         <CookieConsent />
       </body>
     </html>
