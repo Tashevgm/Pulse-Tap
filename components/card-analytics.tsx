@@ -261,8 +261,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
           )}% vs previous ${rangeLabel.toLowerCase()}`;
 
   return (
-    <section className="px-5 pt-10">
-      <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#080c12] shadow-soft lg:grid-cols-[300px_1fr]">
+    <section className="px-3 pt-8 sm:px-5 sm:pt-10">
+      <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#080c12] shadow-soft sm:rounded-[2rem] lg:grid-cols-[300px_1fr]">
         <aside className="border-b border-white/10 bg-white/[0.025] p-4 lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-ink">
@@ -310,16 +310,18 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
           </div>
         </aside>
 
-        <div>
-          <div className="grid gap-5 border-b border-white/8 bg-gradient-to-br from-white/[0.045] via-transparent to-pulse/[0.035] p-5 md:grid-cols-[1fr_auto] md:p-6">
-            <div>
+        <div className="min-w-0">
+          <div className="grid min-w-0 gap-4 border-b border-white/8 bg-gradient-to-br from-white/[0.045] via-transparent to-pulse/[0.035] p-4 sm:gap-5 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
+            <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">{selectedCard.id}</span>
-                <span className="rounded-full border border-white/14 bg-black/20 px-3 py-1 text-xs font-semibold text-white/72">
+                <span className="max-w-full rounded-full border border-white/14 bg-black/20 px-3 py-1 text-xs font-semibold text-white/72">
                   {productLabel(selectedCard)}
                 </span>
               </div>
-              <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">{selectedCard.label}</h2>
+              <h2 className="mt-5 max-w-full break-words text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-4xl">
+                {selectedCard.label}
+              </h2>
               <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/62">
                 <span className="inline-flex items-center gap-1 text-volt">
                   <span className="h-1.5 w-1.5 rounded-full bg-volt" />
@@ -329,14 +331,14 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 md:items-end">
-              <div className="flex flex-wrap gap-2 rounded-full border border-white/10 bg-black/30 p-1">
+            <div className="flex min-w-0 flex-col gap-3 md:items-end">
+              <div className="grid w-full grid-cols-3 gap-1 rounded-full border border-white/10 bg-black/30 p-1 sm:flex sm:w-auto sm:flex-wrap sm:gap-2">
                 {ranges.map((item) => (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => setRange(item.key)}
-                    className={`focus-ring rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    className={`focus-ring rounded-full px-2 py-2 text-center text-xs font-semibold transition sm:px-4 sm:text-sm ${
                       range === item.key ? "border border-pulse bg-pulse/10 text-white" : "text-white/54 hover:text-white"
                     }`}
                   >
@@ -344,14 +346,14 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                   </button>
                 ))}
               </div>
-              <div className="inline-flex items-center rounded-full border border-white/10 bg-black/24 px-4 py-2 text-sm text-white/68">
-                <CalendarDays className="mr-2 h-4 w-4 text-white/42" />
-                {analytics.dateWindow}
+              <div className="inline-flex max-w-full items-center rounded-full border border-white/10 bg-black/24 px-3 py-2 text-sm text-white/68 sm:px-4">
+                <CalendarDays className="mr-2 h-4 w-4 shrink-0 text-white/42" />
+                <span className="min-w-0 truncate">{analytics.dateWindow}</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white p-3 text-ink md:row-span-2 md:w-32">
-              <QRCodeSVG value={publicTapLink(selectedCard)} size={104} />
+            <div className="w-full max-w-[180px] rounded-2xl border border-white/10 bg-white p-3 text-ink md:row-span-2 md:w-32">
+              <QRCodeSVG value={publicTapLink(selectedCard)} className="h-auto w-full" size={104} />
               <div className="mt-2 flex items-center justify-center gap-1 text-[11px] font-semibold">
                 <QrCode className="h-3.5 w-3.5" />
                 QR backup
@@ -359,7 +361,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
             </div>
           </div>
 
-          <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4 md:p-6">
+          <div className="grid min-w-0 gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4 md:p-6">
             {[
               {
                 label: `Taps in ${rangeLabel.toLowerCase()}`,
@@ -386,12 +388,12 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                 icon: Clock3
               }
             ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <div key={stat.label} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5">
                 <div className="flex items-center gap-3">
                   <stat.icon className="h-5 w-5 text-pulse" />
                   <p className="text-sm text-white/58">{stat.label}</p>
                 </div>
-                <p className="mt-4 line-clamp-2 text-2xl font-semibold leading-tight">{stat.value}</p>
+                <p className="mt-4 line-clamp-2 break-words text-xl font-semibold leading-tight sm:text-2xl">{stat.value}</p>
                 <p className={`mt-2 text-xs ${stat.detail.startsWith("+") || stat.detail === "New activity" || stat.detail === "Redirect is live" ? "text-volt" : "text-white/42"}`}>
                   {stat.detail}
                 </p>
@@ -399,8 +401,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
             ))}
           </div>
 
-          <div className="px-5 pb-5 md:px-6 md:pb-6">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5 md:px-6 md:pb-6">
+            <div className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -413,7 +415,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                       : `Selected card performance for ${analytics.dateWindow}`}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   {[
                     { key: "taps" as const, label: "Taps" },
                     { key: "products" as const, label: "Products" }
@@ -433,8 +435,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
               </div>
 
               {view === "taps" ? (
-                <div className="mt-8 grid grid-cols-[auto_1fr] gap-3">
-                  <div className="flex h-52 flex-col justify-between pb-10 text-xs text-white/42">
+                <div className="mt-6 grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-2 sm:mt-8 sm:gap-3">
+                  <div className="flex h-48 flex-col justify-between pb-9 text-xs text-white/42 sm:h-52 sm:pb-10">
                     {[analytics.maxTrend, Math.ceil(analytics.maxTrend * 0.66), Math.ceil(analytics.maxTrend * 0.33), 0].map((value, index) => (
                       <span key={`${value}-${index}`}>{value}</span>
                     ))}
@@ -444,13 +446,13 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                     <div className="absolute inset-x-0 top-1/3 h-px bg-white/8" />
                     <div className="absolute inset-x-0 top-2/3 h-px bg-white/8" />
                     <div className="absolute inset-x-0 bottom-10 h-px bg-white/10" />
-                    <div className="relative flex h-52 items-end gap-3 overflow-x-auto pb-2">
+                    <div className="relative flex h-48 items-end gap-1.5 overflow-x-auto pb-2 sm:h-52 sm:gap-3">
                       {analytics.trend.map((day) => (
-                        <div key={day.key} className="group relative flex min-w-16 flex-1 flex-col items-center gap-2">
-                          <span className="text-sm font-semibold text-white">{day.count > 0 ? day.count : ""}</span>
-                          <div className="flex h-36 w-full items-end justify-center">
+                        <div key={day.key} className="group relative flex min-w-10 flex-1 flex-col items-center gap-1.5 sm:min-w-16 sm:gap-2">
+                          <span className="h-4 text-xs font-semibold leading-4 text-white sm:text-sm">{day.count > 0 ? day.count : ""}</span>
+                          <div className="flex h-32 w-full items-end justify-center sm:h-36">
                             <div
-                              className="w-full max-w-16 rounded-t-lg bg-gradient-to-t from-[#0b6f7d] via-[#12bfd1] to-pulse shadow-[0_0_24px_rgba(77,243,255,0.18)] transition group-hover:brightness-125"
+                              className="w-full max-w-11 rounded-t-md bg-gradient-to-t from-[#0b6f7d] via-[#12bfd1] to-pulse shadow-[0_0_24px_rgba(77,243,255,0.18)] transition group-hover:brightness-125 sm:max-w-16 sm:rounded-t-lg"
                               title={`${day.fullLabel}: ${day.count} taps`}
                               style={{
                                 height: `${Math.max((day.count / analytics.maxTrend) * 100, day.count > 0 ? 18 : 2)}%`
@@ -458,8 +460,8 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                             />
                           </div>
                           <div className="text-center">
-                            <p className="text-xs font-semibold text-white/72">{day.dayLabel}</p>
-                            <p className="text-[11px] text-white/42">{day.weekdayLabel}</p>
+                            <p className="text-[11px] font-semibold leading-4 text-white/72 sm:text-xs">{day.dayLabel}</p>
+                            <p className="text-[10px] leading-3 text-white/42 sm:text-[11px]">{day.weekdayLabel}</p>
                           </div>
                           <div className="pointer-events-none absolute bottom-48 hidden w-48 rounded-2xl border border-white/10 bg-[#0b0e14] p-3 text-left text-xs shadow-soft group-hover:block">
                             <p className="font-semibold text-white">{day.fullLabel}</p>

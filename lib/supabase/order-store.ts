@@ -14,6 +14,7 @@ export type CheckoutOrder = {
   currency: string;
   status: CheckoutOrderStatus;
   abandonedEmailSentAt: string | null;
+  orderConfirmationEmailSentAt: string | null;
   completedAt: string | null;
   createdAt: string;
 };
@@ -30,6 +31,7 @@ type CheckoutOrderRow = {
   currency: string;
   status: CheckoutOrderStatus;
   abandoned_email_sent_at: string | null;
+  order_confirmation_email_sent_at: string | null;
   completed_at: string | null;
   created_at: string;
 };
@@ -47,6 +49,7 @@ function mapOrder(row: CheckoutOrderRow): CheckoutOrder {
     currency: row.currency,
     status: row.status,
     abandonedEmailSentAt: row.abandoned_email_sent_at,
+    orderConfirmationEmailSentAt: row.order_confirmation_email_sent_at,
     completedAt: row.completed_at,
     createdAt: row.created_at
   };
@@ -126,7 +129,25 @@ export async function markCheckoutOrderCompleted({
       completed_at: new Date().toISOString()
     })
     .eq("stripe_session_id", stripeSessionId)
-    .neq("status", "completed")
+    .select("*")
+    .maybeSingle<CheckoutOrderRow>();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? mapOrder(data) : null;
+}
+
+export async function claimOrderConfirmationEmail(orderId: string) {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("checkout_orders")
+    .update({
+      order_confirmation_email_sent_at: new Date().toISOString()
+    })
+    .eq("id", orderId)
+    .is("order_confirmation_email_sent_at", null)
     .select("*")
     .maybeSingle<CheckoutOrderRow>();
 

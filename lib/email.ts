@@ -104,6 +104,27 @@ export async function sendAbandonedCheckoutEmail({
   });
 }
 
+export async function sendEmailVerificationReminderEmail({
+  to,
+  verifyUrl
+}: {
+  to: string;
+  verifyUrl: string;
+}) {
+  return sendEmail({
+    to,
+    subject: `Verify your PulseTap email`,
+    html: shell(`
+      <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;color:#10131a;font-weight:700;">Finish setting up your PulseTap account</h1>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">You created a PulseTap account, but your email address has not been verified yet.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">We have sent a fresh verification email. Open it and confirm your address to complete setup.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">Verifying your email keeps long-term access to your cards, QR backups, editable redirects and tap activity.</p>
+      <p style="margin:24px 0;">${button("Open PulseTap", verifyUrl)}</p>
+      <p style="margin:0;font-size:14px;line-height:1.6;color:#667085;">If you already verified your email, you can ignore this reminder.</p>
+    `)
+  });
+}
+
 export async function sendOrderConfirmationEmail({
   to,
   productName,
@@ -132,7 +153,7 @@ export async function sendOrderConfirmationEmail({
     subject: `Your PulseTap order is confirmed`,
     html: shell(`
       <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;color:#10131a;font-weight:700;">Order confirmed</h1>
-      <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#4b5563;">Thanks for your order. We have received your payment and will prepare your PulseTap product for delivery.</p>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#4b5563;">Thanks for your order. We have received your payment and your PulseTap product is now being prepared.</p>
       <div style="border:1px solid #edf0f4;border-radius:16px;padding:18px;margin:22px 0;">
         <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#667085;">Product</p>
         <p style="margin:0 0 16px;font-size:16px;line-height:1.5;color:#10131a;font-weight:700;">${safeProductName}</p>
@@ -149,8 +170,33 @@ export async function sendOrderConfirmationEmail({
             </div>`
           : ""
       }
+      <div style="border:1px solid #edf0f4;border-radius:16px;padding:18px;margin:22px 0;">
+        <p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#667085;">What happens next</p>
+        <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#4b5563;"><strong style="color:#10131a;">Processing:</strong> We check and prepare your order within 1 business day.</p>
+        <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#4b5563;"><strong style="color:#10131a;">Dispatch:</strong> Most orders are dispatched within 1 business day.</p>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5563;"><strong style="color:#10131a;">Delivery:</strong> Orders are usually delivered by Royal Mail within 1-2 business days after dispatch.</p>
+      </div>
       <p style="margin:24px 0;">${button("Open your profile", dashboardUrl)}</p>
       <p style="margin:0;font-size:14px;line-height:1.6;color:#667085;">When your card arrives, tap it and follow the activation flow to connect it to your destination link.</p>
+    `)
+  });
+}
+
+export async function sendAmazonReviewRequestEmail({
+  to,
+  cardLabel
+}: {
+  to: string;
+  cardLabel: string;
+}) {
+  return sendEmail({
+    to,
+    subject: `How is your PulseTap product working for you?`,
+    html: shell(`
+      <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;color:#10131a;font-weight:700;">Thanks for using PulseTap</h1>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">Your ${escapeHtml(cardLabel)} is active and has started receiving taps.</p>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4b5563;">Thank you for your purchase. If you have a moment, we would appreciate your honest review on Amazon.</p>
+      <p style="margin:0;font-size:14px;line-height:1.6;color:#667085;">No pressure. Your honest feedback helps other businesses understand what to expect.</p>
     `)
   });
 }

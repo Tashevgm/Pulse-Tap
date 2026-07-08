@@ -274,7 +274,7 @@ export function ShopCart({ items }: ShopCartProps) {
               <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-white/60">
-              <span>Standard delivery</span>
+              <span>Royal Mail 24 hour delivery</span>
               <span>{subtotal > 0 ? formatPrice(deliveryAmount) : formatPrice(0)}</span>
             </div>
             <div className="border-t border-white/10 pt-3">

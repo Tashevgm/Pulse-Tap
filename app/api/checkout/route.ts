@@ -52,11 +52,11 @@ async function createCheckoutSessionWithRest({
   params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
   params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(deliveryAmount));
   params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "gbp");
-  params.set("shipping_options[0][shipping_rate_data][display_name]", "Standard delivery");
+  params.set("shipping_options[0][shipping_rate_data][display_name]", "Royal Mail 24 hour delivery");
   params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]", "business_day");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]", "2");
+  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]", "1");
   params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]", "business_day");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "5");
+  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "1");
   lines.forEach((line, index) => {
     params.set(`line_items[${index}][quantity]`, String(line.quantity));
     params.set(`line_items[${index}][price_data][currency]`, "gbp");
@@ -186,15 +186,15 @@ export async function POST(request: Request) {
                 amount: deliveryAmount,
                 currency: "gbp"
               },
-              display_name: "Standard delivery",
+              display_name: "Royal Mail 24 hour delivery",
               delivery_estimate: {
                 minimum: {
                   unit: "business_day",
-                  value: 2
+                  value: 1
                 },
                 maximum: {
                   unit: "business_day",
-                  value: 5
+                  value: 1
                 }
               }
             }

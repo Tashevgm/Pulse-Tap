@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createStripeClient } from "@/lib/stripe";
 import { sendOrderConfirmationEmail } from "@/lib/email";
-import { markCheckoutOrderCompleted, markCheckoutOrderExpired } from "@/lib/supabase/order-store";
+import { claimOrderConfirmationEmail, markCheckoutOrderCompleted, markCheckoutOrderExpired } from "@/lib/supabase/order-store";
 
 export const runtime = "nodejs";
 
@@ -21,6 +21,10 @@ function formatAddress(address?: Stripe.Address | null) {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function isMissingColumnError(error: unknown) {
+  return error instanceof Error && error.message.toLowerCase().includes("column");
 }
 
 export async function POST(request: Request) {
@@ -75,14 +79,33 @@ export async function POST(request: Request) {
     const customerEmail = session.customer_details?.email ?? session.customer_email ?? order?.customerEmail;
 
     if (order && customerEmail && session.amount_total !== null) {
+      let claimedOrder;
+
+      try {
+        claimedOrder = await claimOrderConfirmationEmail(order.id);
+      } catch (claimError) {
+        if (!isMissingColumnError(claimError)) {
+          throw claimError;
+        }
+
+        console.warn("order_confirmation_email_sent_at is missing. Sending without duplicate guard until migration is applied.");
+        claimedOrder = order;
+      }
+
+      if (!claimedOrder) {
+        return NextResponse.json({
+          ok: true
+        });
+      }
+
       const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
 
       await sendOrderConfirmationEmail({
         to: customerEmail,
-        productName: order.productName,
+        productName: claimedOrder.productName,
         amountTotal: session.amount_total,
         shippingAmount: session.shipping_cost?.amount_total ?? 0,
-        currency: session.currency ?? order.currency,
+        currency: session.currency ?? claimedOrder.currency,
         shippingName: session.customer_details?.name,
         shippingAddress: formatAddress(session.customer_details?.address),
         dashboardUrl: `${origin}/dashboard`

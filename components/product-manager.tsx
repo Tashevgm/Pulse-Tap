@@ -168,9 +168,9 @@ export function ProductManager({ cards }: ProductManagerProps) {
   }
 
   return (
-    <section className="px-5 py-10 md:py-14">
-      <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[390px_1fr]">
-        <aside className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-4">
+    <section className="px-3 py-8 sm:px-5 sm:py-10 md:py-14">
+      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[390px_1fr] lg:gap-5">
+        <aside className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-3 sm:rounded-[2rem] sm:p-4">
           <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
             <Search className="h-4 w-4 text-white/46" />
             <input
@@ -186,7 +186,7 @@ export function ProductManager({ cards }: ProductManagerProps) {
               <button
                 key={product.id}
                 onClick={() => setSelectedId(product.id)}
-                className={`focus-ring w-full rounded-3xl border p-4 text-left transition ${
+                className={`focus-ring w-full rounded-2xl border p-3 text-left transition sm:rounded-3xl sm:p-4 ${
                   selectedProduct.id === product.id
                     ? "border-pulse/55 bg-pulse/10"
                     : "border-white/10 bg-black/18 hover:border-white/20"
@@ -215,24 +215,24 @@ export function ProductManager({ cards }: ProductManagerProps) {
         </aside>
 
         {selectedProduct ? (
-          <div className="glass overflow-hidden rounded-[2rem]">
-            <div className={`bg-gradient-to-br ${productAccent[selectedProduct.type]} border-b border-white/10 p-6 md:p-8`}>
-              <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                <div>
+          <div className="glass overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]">
+            <div className={`bg-gradient-to-br ${productAccent[selectedProduct.type]} border-b border-white/10 p-4 sm:p-5 md:p-8`}>
+              <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+                <div className="min-w-0">
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">{selectedProduct.id}</span>
-                    <span className="rounded-full border border-white/14 bg-black/18 px-3 py-1 text-xs font-semibold text-white/76">
+                    <span className="max-w-full rounded-full border border-white/14 bg-black/18 px-3 py-1 text-xs font-semibold text-white/76">
                       {productTypeLabel[selectedProduct.type]}
                     </span>
                   </div>
-                  <h2 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">{selectedProduct.label}</h2>
+                  <h2 className="mt-4 max-w-full break-words text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-4xl">{selectedProduct.label}</h2>
                   <p className="mt-3 text-sm leading-6 text-white/58">
                     Active PulseTap link · Updated {selectedProduct.updatedAt}
                   </p>
                 </div>
-                <div className="rounded-3xl border border-white/10 bg-white p-3 text-ink">
-                  <QRCodeSVG value={publicTapLink(selectedProduct)} size={132} />
-                  <div className="mt-2 flex items-center justify-center gap-1 text-xs font-semibold">
+                <div className="w-full max-w-[180px] rounded-2xl border border-white/10 bg-white p-3 text-ink sm:max-w-[210px] md:w-[156px]">
+                  <QRCodeSVG value={publicTapLink(selectedProduct)} className="h-auto w-full" size={132} />
+                  <div className="mt-2 flex items-center justify-center gap-1 text-[11px] font-semibold sm:text-xs">
                     <QrCode className="h-3.5 w-3.5" />
                     QR backup
                   </div>
@@ -240,8 +240,8 @@ export function ProductManager({ cards }: ProductManagerProps) {
               </div>
             </div>
 
-            <div className="grid gap-0 md:grid-cols-[1fr_270px]">
-              <div className="p-6 md:p-8">
+            <div className="grid min-w-0 gap-0 md:grid-cols-[minmax(0,1fr)_270px]">
+              <div className="min-w-0 p-4 sm:p-5 md:p-8">
                 <label className="block">
                   <span className="flex items-center gap-2 text-sm font-semibold text-white/82">
                     <Link2 className="h-4 w-4 text-pulse" />
@@ -250,7 +250,7 @@ export function ProductManager({ cards }: ProductManagerProps) {
                   <input
                     value={selectedProduct.redirectUrl}
                     onChange={(event) => updateLocalRedirectUrl(selectedProduct.id, event.target.value)}
-                    className="focus-ring mt-3 w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-4 text-base text-white placeholder:text-white/34"
+                    className="focus-ring mt-3 w-full min-w-0 rounded-2xl border border-white/12 bg-black/20 px-4 py-3 text-sm text-white placeholder:text-white/34 sm:py-4 sm:text-base"
                     placeholder="https://your-link.com"
                     inputMode="url"
                   />
@@ -266,13 +266,13 @@ export function ProductManager({ cards }: ProductManagerProps) {
                   {saveError ? <p className="text-sm text-coral">{saveError}</p> : null}
                 </div>
 
-                <div className="mt-5 rounded-3xl border border-white/10 bg-black/18 p-4">
+                <div className="mt-5 min-w-0 rounded-2xl border border-white/10 bg-black/18 p-4 sm:rounded-3xl">
                   <p className="text-sm font-semibold">Public PulseTap link</p>
                   <p className="mt-2 break-all text-sm leading-6 text-white/58">{publicTapLink(selectedProduct)}</p>
-                  <div className="mt-4 flex flex-wrap gap-3">
+                  <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
                     <button
                       onClick={() => copyRedirect(selectedProduct.id)}
-                      className="focus-ring inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink"
+                      className="focus-ring inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink"
                     >
                       {copiedId === selectedProduct.id ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
                       {copiedId === selectedProduct.id ? "Copied" : "Copy Link"}
@@ -281,7 +281,7 @@ export function ProductManager({ cards }: ProductManagerProps) {
                       href={`/t/${selectedProduct.claimToken}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="focus-ring inline-flex items-center rounded-full border border-white/14 px-4 py-2 text-sm font-semibold text-white/78"
+                      className="focus-ring inline-flex items-center justify-center rounded-full border border-white/14 px-4 py-2 text-sm font-semibold text-white/78"
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       Test Link
@@ -290,7 +290,7 @@ export function ProductManager({ cards }: ProductManagerProps) {
                 </div>
               </div>
 
-              <div className="border-t border-white/10 p-6 md:border-l md:border-t-0 md:p-8">
+              <div className="border-t border-white/10 p-4 sm:p-5 md:border-l md:border-t-0 md:p-8">
                 <p className="text-sm font-semibold">Product activity</p>
                 <div className="mt-4 space-y-3 text-sm">
                   <div className="rounded-2xl border border-white/10 bg-black/18 p-4">

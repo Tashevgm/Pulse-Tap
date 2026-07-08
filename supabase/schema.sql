@@ -23,6 +23,7 @@ create table if not exists public.profiles (
   full_name text not null,
   company_name text not null,
   provider text not null default 'email',
+  email_verification_reminder_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -38,10 +39,14 @@ create table if not exists public.cards (
   label text not null,
   owner_profile_id uuid references public.profiles(id) on delete set null,
   taps integer not null default 0,
+  amazon_review_request_email_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   activated_at timestamptz
 );
+
+alter table public.profiles
+  add column if not exists email_verification_reminder_sent_at timestamptz;
 
 create table if not exists public.b2b_customer_cards (
   id text primary key,
@@ -55,6 +60,7 @@ create table if not exists public.b2b_customer_cards (
   label text not null,
   owner_profile_id uuid references public.profiles(id) on delete set null,
   taps integer not null default 0,
+  amazon_review_request_email_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   activated_at timestamptz
@@ -62,6 +68,12 @@ create table if not exists public.b2b_customer_cards (
 
 alter table public.b2b_customer_cards
   add column if not exists tap_link text generated always as ('https://www.pulse-tap.com/t/' || claim_token) stored;
+
+alter table public.cards
+  add column if not exists amazon_review_request_email_sent_at timestamptz;
+
+alter table public.b2b_customer_cards
+  add column if not exists amazon_review_request_email_sent_at timestamptz;
 
 create table if not exists public.tap_events (
   id bigint generated always as identity primary key,
@@ -93,16 +105,24 @@ create table if not exists public.checkout_orders (
   currency text not null default 'gbp',
   status text not null default 'pending',
   abandoned_email_sent_at timestamptz,
+  order_confirmation_email_sent_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+alter table public.checkout_orders
+  add column if not exists order_confirmation_email_sent_at timestamptz;
+
 create index if not exists cards_owner_profile_id_idx on public.cards(owner_profile_id);
 create index if not exists cards_card_database_idx on public.cards(card_database);
 create index if not exists cards_activated_idx on public.cards(activated);
+create index if not exists cards_review_request_candidates_idx on public.cards(activated_at, taps)
+  where amazon_review_request_email_sent_at is null and owner_profile_id is not null;
 create index if not exists b2b_customer_cards_owner_profile_id_idx on public.b2b_customer_cards(owner_profile_id);
 create index if not exists b2b_customer_cards_activated_idx on public.b2b_customer_cards(activated);
+create index if not exists b2b_customer_cards_review_request_candidates_idx on public.b2b_customer_cards(activated_at, taps)
+  where amazon_review_request_email_sent_at is null and owner_profile_id is not null;
 create index if not exists tap_events_card_id_created_at_idx on public.tap_events(card_id, created_at desc);
 create index if not exists b2b_tap_events_card_id_created_at_idx on public.b2b_tap_events(card_id, created_at desc);
 create index if not exists checkout_orders_customer_email_idx on public.checkout_orders(customer_email);
