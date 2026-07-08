@@ -74,7 +74,7 @@ export default async function DashboardPage() {
                 Activate your first product
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-            ) : (
+            ) : b2bCards.length > 0 ? (
               <Link
                 href="/dashboard/b2b"
                 className="focus-ring mt-4 inline-flex items-center rounded-full border border-white/14 px-5 py-3 text-sm font-semibold text-white/78 transition hover:border-pulse hover:text-white"
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
                 <Database className="mr-2 h-4 w-4" />
                 B2B database ({b2bCards.length})
               </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </section>
