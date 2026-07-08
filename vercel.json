@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/checkout/abandoned",
-      "schedule": "0 * * * *"
+      "schedule": "0 10 * * *"
     }
   ]
 }
