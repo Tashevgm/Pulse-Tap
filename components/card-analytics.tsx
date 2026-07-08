@@ -259,6 +259,11 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
         : `${analytics.scopedEvents.length >= analytics.previousPeriodTaps ? "+" : ""}${Math.round(
             ((analytics.scopedEvents.length - analytics.previousPeriodTaps) / analytics.previousPeriodTaps) * 100
           )}% vs previous ${rangeLabel.toLowerCase()}`;
+  const chartTrend = range === "7d" ? analytics.trend : analytics.trend.slice(-7);
+  const yAxisLabels =
+    analytics.maxTrend <= 1
+      ? [1, "", "", 0]
+      : [analytics.maxTrend, Math.ceil(analytics.maxTrend * 0.66), Math.ceil(analytics.maxTrend * 0.33), 0];
 
   return (
     <section className="px-3 pt-8 sm:px-5 sm:pt-10">
@@ -352,7 +357,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
               </div>
             </div>
 
-            <div className="w-full max-w-[180px] rounded-2xl border border-white/10 bg-white p-3 text-ink md:row-span-2 md:w-32">
+            <div className="hidden w-full max-w-[180px] rounded-2xl border border-white/10 bg-white p-3 text-ink sm:block md:row-span-2 md:w-32">
               <QRCodeSVG value={publicTapLink(selectedCard)} className="h-auto w-full" size={104} />
               <div className="mt-2 flex items-center justify-center gap-1 text-[11px] font-semibold">
                 <QrCode className="h-3.5 w-3.5" />
@@ -437,7 +442,7 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
               {view === "taps" ? (
                 <div className="mt-6 grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-2 sm:mt-8 sm:gap-3">
                   <div className="flex h-48 flex-col justify-between pb-9 text-xs text-white/42 sm:h-52 sm:pb-10">
-                    {[analytics.maxTrend, Math.ceil(analytics.maxTrend * 0.66), Math.ceil(analytics.maxTrend * 0.33), 0].map((value, index) => (
+                    {yAxisLabels.map((value, index) => (
                       <span key={`${value}-${index}`}>{value}</span>
                     ))}
                   </div>
@@ -446,9 +451,9 @@ export function CardAnalytics({ cards, tapEvents }: CardAnalyticsProps) {
                     <div className="absolute inset-x-0 top-1/3 h-px bg-white/8" />
                     <div className="absolute inset-x-0 top-2/3 h-px bg-white/8" />
                     <div className="absolute inset-x-0 bottom-10 h-px bg-white/10" />
-                    <div className="relative flex h-48 items-end gap-1.5 overflow-x-auto pb-2 sm:h-52 sm:gap-3">
-                      {analytics.trend.map((day) => (
-                        <div key={day.key} className="group relative flex min-w-10 flex-1 flex-col items-center gap-1.5 sm:min-w-16 sm:gap-2">
+                    <div className="relative flex h-48 min-w-0 items-end gap-1.5 overflow-hidden pb-2 sm:h-52 sm:gap-3">
+                      {chartTrend.map((day) => (
+                        <div key={day.key} className="group relative flex min-w-0 flex-1 flex-col items-center gap-1.5 sm:min-w-16 sm:gap-2">
                           <span className="h-4 text-xs font-semibold leading-4 text-white sm:text-sm">{day.count > 0 ? day.count : ""}</span>
                           <div className="flex h-32 w-full items-end justify-center sm:h-36">
                             <div

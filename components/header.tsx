@@ -43,7 +43,7 @@ export async function Header() {
             </Link>
           ) : null}
           {isSignedIn ? (
-            <form action="/api/auth/logout" method="post">
+            <form action="/api/auth/logout" method="post" className="hidden sm:block">
               <button
                 type="submit"
                 className="focus-ring inline-flex h-9 items-center rounded-full border border-white/14 bg-white/8 px-3 text-sm font-semibold text-white transition hover:bg-white/14 sm:h-10 sm:px-4"
