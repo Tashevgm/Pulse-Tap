@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { runAbandonedCheckoutAutomation } from "@/lib/abandoned-checkout-automation";
 import { sendAmazonReviewRequestEmail, sendEmailVerificationReminderEmail } from "@/lib/email";
 import {
   claimEmailVerificationReminder,
@@ -48,6 +49,8 @@ async function runEmailAutomations(request: Request) {
   let reviewRequestsSent = 0;
   let reviewRequestsSkipped = 0;
   let reviewRequestsFailed = 0;
+  let abandonedCheckoutEmailsSent = 0;
+  let abandonedCheckoutEmailsFailed = 0;
 
   // Run each automation independently so a failure in account verification
   // reminders cannot prevent Amazon review reminders from being processed.
@@ -103,14 +106,30 @@ async function runEmailAutomations(request: Request) {
     console.error("Could not load Amazon review request candidates.", error);
   }
 
+  // Hobby plans allow only one daily cron schedule, so run abandoned checkout
+  // reminders in this same daily job rather than scheduling a second cron.
+  try {
+    const abandonedResult = await runAbandonedCheckoutAutomation(origin);
+    abandonedCheckoutEmailsSent = abandonedResult.sent;
+    abandonedCheckoutEmailsFailed = abandonedResult.failed;
+  } catch (error) {
+    abandonedCheckoutEmailsFailed += 1;
+    console.error("Could not run abandoned checkout email automation.", error);
+  }
+
   return NextResponse.json({
-    ok: verificationRemindersFailed === 0 && reviewRequestsFailed === 0,
+    ok:
+      verificationRemindersFailed === 0 &&
+      reviewRequestsFailed === 0 &&
+      abandonedCheckoutEmailsFailed === 0,
     verificationRemindersSent,
     verificationRemindersSkipped,
     verificationRemindersFailed,
     reviewRequestsSent,
     reviewRequestsSkipped,
-    reviewRequestsFailed
+    reviewRequestsFailed,
+    abandonedCheckoutEmailsSent,
+    abandonedCheckoutEmailsFailed
   });
 }
 

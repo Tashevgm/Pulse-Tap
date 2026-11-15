@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { sendAbandonedCheckoutEmail, sendOwnerAbandonedCheckoutEmail } from "@/lib/email";
-import { markAbandonedEmailSent, readAbandonedCheckoutOrders } from "@/lib/supabase/order-store";
+import { runAbandonedCheckoutAutomation } from "@/lib/abandoned-checkout-automation";
 
 export const runtime = "nodejs";
 
@@ -29,44 +28,11 @@ async function runAbandonedCheckoutEmails(request: Request) {
     );
   }
 
-  const requestUrl = new URL(request.url);
-  const cutoff = new Date(Date.now() - 1000 * 60 * 60).toISOString();
-  const orders = await readAbandonedCheckoutOrders(cutoff);
-
-  for (const order of orders) {
-    const ownerEmail = process.env.ORDER_NOTIFICATION_EMAIL;
-
-    const results = await Promise.allSettled([
-      sendAbandonedCheckoutEmail({
-        to: order.customerEmail,
-        productName: order.productName,
-        shopUrl: new URL("/shop", requestUrl.origin).toString()
-      }),
-      ownerEmail
-        ? sendOwnerAbandonedCheckoutEmail({
-            to: ownerEmail,
-            orderId: order.id,
-            productName: order.productName,
-            customerEmail: order.customerEmail,
-            amount: order.amount,
-            currency: order.currency,
-            createdAt: order.createdAt
-          })
-        : Promise.resolve()
-    ]);
-
-    results.forEach((result) => {
-      if (result.status === "rejected") {
-        console.warn("Abandoned checkout email failed.", result.reason);
-      }
-    });
-
-    await markAbandonedEmailSent(order.id);
-  }
+  const result = await runAbandonedCheckoutAutomation(new URL(request.url).origin);
 
   return NextResponse.json({
     ok: true,
-    sent: orders.length
+    ...result
   });
 }
 

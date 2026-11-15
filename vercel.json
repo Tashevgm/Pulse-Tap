@@ -3,10 +3,6 @@
     {
       "path": "/api/automations/emails",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/checkout/abandoned",
-      "schedule": "0 * * * *"
     }
   ]
 }
