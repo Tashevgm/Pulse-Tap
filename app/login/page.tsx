@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, LockKeyhole, Smartphone } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
+import { safeInternalPath } from "@/lib/navigation";
 
 export const metadata: Metadata = {
   title: "Log In",
@@ -12,6 +13,7 @@ type LoginPageProps = {
   searchParams: Promise<{
     error?: string;
     message?: string;
+    next?: string;
   }>;
 };
 
@@ -25,7 +27,8 @@ const authErrorTitles: Record<string, string> = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error = "", message = "" } = await searchParams;
+  const { error = "", message = "", next: requestedNext } = await searchParams;
+  const next = safeInternalPath(requestedNext);
   const errorTitle = error ? authErrorTitles[error] ?? "Sign in needs attention" : "";
 
   return (
@@ -64,7 +67,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
 
           <Link
-            href="/api/auth/google?next=%2Fdashboard"
+            href={`/api/auth/google?next=${encodeURIComponent(next)}`}
             className="focus-ring mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-4 text-sm font-semibold text-ink transition hover:bg-pulse"
           >
             <span className="grid h-6 w-6 place-items-center rounded-full border border-black/10 text-base font-bold">G</span>
@@ -87,11 +90,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <div className="h-px flex-1 bg-white/10" />
           </div>
 
-          <LoginForm />
+          <LoginForm next={next} />
 
           <p className="mt-5 text-center text-sm leading-6 text-white/48">
             Need an account?{" "}
-            <Link href="/signup" className="font-semibold text-white hover:text-pulse">
+            <Link href={{ pathname: "/signup", query: { next } }} className="font-semibold text-white hover:text-pulse">
               Create one
             </Link>
           </p>

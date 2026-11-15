@@ -2,6 +2,9 @@ alter table public.profiles
   add column if not exists email_verification_reminder_sent_at timestamptz;
 
 alter table public.checkout_orders
+  add column if not exists owner_order_notification_sent_at timestamptz;
+
+alter table public.checkout_orders
   add column if not exists order_confirmation_email_sent_at timestamptz;
 
 alter table public.cards

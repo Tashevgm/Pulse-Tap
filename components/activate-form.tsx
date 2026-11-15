@@ -127,11 +127,11 @@ export function ActivateForm({
   return (
     <div className="glass rounded-[2rem] p-5 md:p-8">
       <div className="rounded-3xl border border-white/10 bg-black/24 p-4">
-        <p className="text-sm font-semibold">{detectedCard ? "Card detected" : "Try demo claim link"}</p>
+        <p className="text-sm font-semibold">{detectedCard ? "Card detected" : "Ready to activate?"}</p>
         <p className="mt-1 text-sm text-white/56">
           {detectedCard
             ? `${detectedCard.label} (${detectedCard.id}) is ready for activation.`
-            : "Open /activate?claim=google-claim-002-ptg to test automatic card detection."}
+            : "Tap or scan your card to open its activation link and detect it automatically. If prompted, enter the activation code provided with your card."}
         </p>
         {detectedCard?.activationCode ? (
           <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-pulse/30 bg-pulse/10 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -159,7 +159,7 @@ export function ActivateForm({
               value={form.activationCode}
               onChange={(event) => setForm((current) => ({ ...current, activationCode: event.target.value }))}
               className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-4 text-base text-white placeholder:text-white/32"
-              placeholder="GOOGLE-002"
+              placeholder="Enter your activation code"
               autoComplete="off"
             />
           </label>

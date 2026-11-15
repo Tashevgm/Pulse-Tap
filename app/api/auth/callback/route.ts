@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
+import { safeInternalPath } from "@/lib/navigation";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -9,8 +10,7 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get("code");
   const tokenHash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type");
-  const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
-  const next = requestedNext.startsWith("/") ? requestedNext : "/dashboard";
+  const next = safeInternalPath(requestUrl.searchParams.get("next"));
 
   if (authError) {
     const signupUrl = new URL("/signup", requestUrl.origin);

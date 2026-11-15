@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { ArrowRight, CheckCircle2, Loader2, Mail } from "lucide-react";
 
-export function SignUpForm() {
+export function SignUpForm({ next = "/dashboard" }: { next?: string }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -26,7 +26,7 @@ export function SignUpForm() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, next })
       });
       const payload = (await response.json()) as {
         ok: boolean;
@@ -44,7 +44,7 @@ export function SignUpForm() {
         return;
       }
 
-      window.location.href = "/dashboard";
+      window.location.href = next;
     } catch {
       setError("Could not create this account.");
     } finally {

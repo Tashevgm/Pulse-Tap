@@ -261,15 +261,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-5 pb-20">
-        <div className="mx-auto max-w-6xl rounded-3xl border border-white/10 bg-white/[0.045] p-6 md:flex md:items-center md:justify-between">
+      <section className="px-5 pb-20 pt-4">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-volt/25 bg-[radial-gradient(ellipse_at_top_right,rgba(185,255,77,0.15),transparent_48%),linear-gradient(135deg,#111914,#0d1018)] p-7 shadow-[0_24px_80px_rgba(185,255,77,0.08)] sm:p-9 md:flex md:items-center md:justify-between md:gap-8 md:p-12">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">Ecosystem</p>
-            <h2 className="mt-3 text-2xl font-semibold">Sister platform: PulseMenu</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/58">For restaurants that need digital menus alongside NFC and QR touchpoints.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-volt">For restaurant owners</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Running a restaurant?</h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-white/70">We’ve got you. Give your guests a simple digital menu with PulseMenu.</p>
           </div>
-          <Link href="https://pulse-menu.com" className="focus-ring mt-5 inline-flex items-center rounded-full border border-white/14 px-5 py-3 text-sm font-semibold md:mt-0">
-            Visit PulseMenu
+          <Link href="https://pulse-menu.com" className="focus-ring mt-6 inline-flex shrink-0 items-center justify-center rounded-full bg-volt px-6 py-3.5 text-sm font-semibold text-ink transition hover:bg-white md:mt-0">
+            Explore PulseMenu
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </div>

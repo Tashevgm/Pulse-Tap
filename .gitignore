@@ -17,6 +17,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
+*.tsbuildinfo
+
+# private production card data
+/Excel_sheet/
 
 # editor and OS files
 .DS_Store

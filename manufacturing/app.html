@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Program, verify and track PulseTap NFC cards in one focused production workflow.">
+  <meta name="theme-color" content="#07080d">
+  <title>PulseTap NFC Encoder | Program Smart Cards</title>
+  <link rel="icon" href="pulsetap-logo.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="intro-active">
+  <main class="shell">
+    <section id="introPage" class="intro-page">
+      <nav class="intro-nav" aria-label="PulseTap Encoder navigation">
+        <a class="intro-wordmark" href="https://www.pulse-tap.com" target="_blank" rel="noreferrer">
+          <span class="intro-logo"><img src="pulsetap-logo.png" alt=""></span>
+          <span>PulseTap</span>
+        </a>
+        <div class="intro-nav-links">
+          <a href="#workflow">How it works</a>
+          <a href="#requirements">Requirements</a>
+          <button class="intro-tool-link" type="button" data-open-qr>QR generator</button>
+          <button id="openTool" class="intro-nav-cta" type="button">Open encoder <span aria-hidden="true">&rarr;</span></button>
+        </div>
+      </nav>
+
+      <header class="intro-hero">
+        <div class="intro-copy">
+          <span class="intro-kicker"><span class="intro-live-dot"></span> NFC production tool</span>
+          <h1>PulseTap NFC Encoder</h1>
+          <p class="intro-lead">Program, verify and track smart cards in one focused workflow. Built for fast PulseTap production runs without losing control of which card comes next.</p>
+          <div class="intro-actions">
+            <button class="intro-cta" type="button" data-open-encoder>Start programming <span aria-hidden="true">&rarr;</span></button>
+            <button class="intro-secondary" type="button" data-open-qr>Create a free QR</button>
+            <a class="intro-secondary" href="#workflow">See how it works</a>
+          </div>
+          <div class="intro-proof" aria-label="Encoder capabilities">
+            <span><strong>Batch</strong> CSV queues</span>
+            <span><strong>Live</strong> Write status</span>
+            <span><strong>Safe</strong> Resume progress</span>
+          </div>
+        </div>
+        <figure class="intro-media">
+          <img src="pulsetap-cards.png" alt="PulseTap Google, Instagram and Facebook NFC cards">
+          <figcaption><span></span> Ready for Google, Instagram, Facebook and custom links</figcaption>
+        </figure>
+      </header>
+
+      <section class="intro-purpose" aria-labelledby="purposeTitle">
+        <div>
+          <span class="intro-section-label">What it is for</span>
+          <h2 id="purposeTitle">Turn blank NFC cards into ready-to-use PulseTap products.</h2>
+        </div>
+        <p>The encoder writes a unique PulseTap claim link or destination to each physical card. It keeps the source file, next card, tag UID, verification result and completed count together so a large batch stays accurate from first card to last.</p>
+      </section>
+
+      <section id="workflow" class="intro-section" aria-labelledby="workflowTitle">
+        <div class="intro-section-heading">
+          <span class="intro-section-label">Production workflow</span>
+          <h2 id="workflowTitle">From spreadsheet to programmed card.</h2>
+          <p>Three clear stages keep the operator moving and make every result traceable.</p>
+        </div>
+        <div class="intro-steps">
+          <article>
+            <span class="intro-step-number">01</span>
+            <h3>Load the queue</h3>
+            <p>Upload a CSV or paste links directly. The tool validates each row and shows the next card before writing begins.</p>
+          </article>
+          <article>
+            <span class="intro-step-number">02</span>
+            <h3>Tap and encode</h3>
+            <p>Connect the reader, start the operation and place cards one at a time. Fast mode supports high-volume runs.</p>
+          </article>
+          <article>
+            <span class="intro-step-number">03</span>
+            <h3>Verify and resume</h3>
+            <p>Confirm the written value, record the UID and export progress. A saved session can continue at the correct row later.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="requirements" class="intro-requirements" aria-labelledby="requirementsTitle">
+        <div class="intro-requirements-copy">
+          <span class="intro-section-label">Before you begin</span>
+          <h2 id="requirementsTitle">The browser handles the workflow. The local bridge talks to the reader.</h2>
+          <p>For security, a public website cannot directly control most USB NFC readers. Keep the PulseTap bridge running on the same Windows computer while using the online encoder.</p>
+        </div>
+        <ul class="intro-checklist">
+          <li><span aria-hidden="true">01</span><div><strong>USB NFC reader</strong><small>Connected and detected by Windows</small></div></li>
+          <li><span aria-hidden="true">02</span><div><strong>PulseTap bridge</strong><small>Running locally on this computer</small></div></li>
+          <li><span aria-hidden="true">03</span><div><strong>Blank NFC cards</strong><small>Ready to write, verify and label</small></div></li>
+          <li><span aria-hidden="true">04</span><div><strong>Programming file</strong><small>CSV queue or one destination per line</small></div></li>
+        </ul>
+      </section>
+
+      <section class="intro-final">
+        <span class="intro-section-label">Ready to encode</span>
+        <h2>Connect your reader and start the next production run.</h2>
+        <button class="intro-cta" type="button" data-open-encoder>Open PulseTap Encoder <span aria-hidden="true">&rarr;</span></button>
+      </section>
+
+      <footer class="intro-footer">
+        <a class="intro-wordmark" href="https://www.pulse-tap.com" target="_blank" rel="noreferrer">
+          <span class="intro-logo"><img src="pulsetap-logo.png" alt=""></span>
+          <span>PulseTap</span>
+        </a>
+        <p>Smart NFC + QR products for modern businesses.</p>
+      </footer>
+    </section>
+
+    <section id="qrPage" class="qr-page" hidden>
+      <nav class="qr-nav" aria-label="QR generator navigation">
+        <button class="qr-wordmark" type="button" data-show-intro>
+          <span class="intro-logo"><img src="pulsetap-logo.png" alt=""></span>
+          <span>PulseTap</span>
+        </button>
+        <div class="qr-nav-actions">
+          <button class="qr-nav-link" type="button" data-show-intro>Overview</button>
+          <button class="qr-nav-link" type="button" data-open-encoder>NFC Encoder</button>
+        </div>
+      </nav>
+
+      <header class="qr-heading">
+        <div>
+          <span class="intro-section-label">Free browser tool</span>
+          <h1>QR Code Generator</h1>
+        </div>
+        <p>Create a clean, high-resolution QR code for any link or text. Nothing is uploaded and no account is required.</p>
+      </header>
+
+      <div class="qr-workspace">
+        <section class="qr-controls" aria-labelledby="qrControlsTitle">
+          <div class="qr-panel-heading">
+            <div>
+              <span>01</span>
+              <h2 id="qrControlsTitle">QR content</h2>
+            </div>
+            <strong id="qrCharacterCount">0 characters</strong>
+          </div>
+
+          <div class="qr-type-tabs" role="tablist" aria-label="QR content type">
+            <button class="qr-type-tab active" type="button" data-qr-type="url" role="tab" aria-selected="true">Website</button>
+            <button class="qr-type-tab" type="button" data-qr-type="text" role="tab" aria-selected="false">Text</button>
+            <button class="qr-type-tab" type="button" data-qr-type="email" role="tab" aria-selected="false">Email</button>
+            <button class="qr-type-tab" type="button" data-qr-type="phone" role="tab" aria-selected="false">Phone</button>
+          </div>
+
+          <label class="qr-field qr-content-field">
+            <span id="qrInputLabel">Website URL</span>
+            <textarea id="qrContent" rows="5" spellcheck="false" placeholder="https://www.pulse-tap.com"></textarea>
+            <small id="qrInputHint">Enter the full page address you want the QR code to open.</small>
+          </label>
+
+          <div class="qr-control-grid">
+            <label class="qr-field">
+              <span>Export size</span>
+              <select id="qrSize">
+                <option value="512">512 x 512 px</option>
+                <option value="1024" selected>1024 x 1024 px</option>
+                <option value="2048">2048 x 2048 px</option>
+              </select>
+            </label>
+            <label class="qr-field">
+              <span>Error correction</span>
+              <select id="qrCorrection">
+                <option value="L">Low</option>
+                <option value="M" selected>Medium</option>
+                <option value="Q">High</option>
+                <option value="H">Maximum</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="qr-control-grid qr-color-grid">
+            <label class="qr-field">
+              <span>QR colour</span>
+              <span class="qr-color-control"><input id="qrForeground" type="color" value="#07080d"><code id="qrForegroundValue">#07080D</code></span>
+            </label>
+            <label class="qr-field">
+              <span>Background</span>
+              <span class="qr-color-control"><input id="qrBackground" type="color" value="#ffffff"><code id="qrBackgroundValue">#FFFFFF</code></span>
+            </label>
+          </div>
+
+          <label class="qr-toggle">
+            <input id="qrTransparent" type="checkbox">
+            <span><strong>Transparent background</strong><small>Useful when placing the QR on artwork.</small></span>
+          </label>
+
+          <div class="qr-control-actions">
+            <button id="qrReset" class="qr-reset" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="qr-preview-panel" aria-labelledby="qrPreviewTitle">
+          <div class="qr-panel-heading">
+            <div>
+              <span>02</span>
+              <h2 id="qrPreviewTitle">Preview</h2>
+            </div>
+            <strong id="qrStatus">Ready</strong>
+          </div>
+
+          <div id="qrCanvasFrame" class="qr-canvas-frame">
+            <canvas id="qrCanvas" width="1024" height="1024" aria-label="Generated QR code preview"></canvas>
+            <div id="qrEmptyState" class="qr-empty-state">
+              <span class="qr-empty-mark" aria-hidden="true"></span>
+              <strong>Your QR code will appear here</strong>
+              <small>Enter a website, message, email or phone number.</small>
+            </div>
+          </div>
+
+          <label class="qr-field qr-file-field">
+            <span>File name</span>
+            <input id="qrFilename" type="text" value="pulsetap-qr-code" autocomplete="off">
+          </label>
+
+          <div class="qr-download-actions">
+            <button id="qrDownloadPng" class="qr-download-primary" type="button" disabled>Download PNG</button>
+            <button id="qrDownloadSvg" type="button" disabled>Download SVG</button>
+          </div>
+          <p class="qr-privacy-note">Generated locally in your browser. Your content is never sent to PulseTap or another service.</p>
+        </section>
+      </div>
+    </section>
+
+    <section id="toolPage" class="workspace" hidden>
+      <header class="topbar">
+        <div class="title-block">
+          <span class="app-mark"><img src="pulsetap-logo.png" alt="PulseTap"></span>
+          <div>
+            <span class="eyebrow">PulseTap Operations</span>
+            <h1>PulseTap Encoder</h1>
+            <p>Batch program, verify, erase and resume NFC card sessions.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="action-group">
+            <button id="operationToggle" class="start-action" type="button" aria-pressed="false">Start Operation</button>
+            <button id="autoEncode" class="active-action" type="button" aria-pressed="true">Auto Encode On</button>
+            <button id="bridgeStatus" type="button">Reader Status</button>
+            <button id="showIntro" type="button">Intro</button>
+          </div>
+          <div class="action-group">
+            <button id="readTag" type="button">Read Tag</button>
+            <button id="writeTag" class="primary-action" type="button">Write Tag</button>
+            <button id="eraseTag" type="button">Erase Tag</button>
+          </div>
+          <div class="action-group">
+            <button id="downloadCsv" type="button">CSV</button>
+            <button id="downloadJson" type="button">JSON</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="controls surface" aria-label="Encoding controls">
+        <label>
+          Record type
+          <select id="recordType">
+            <option value="WEBSITE">Website</option>
+            <option value="TEXT">Text</option>
+            <option value="URI">URI</option>
+            <option value="PHONE">Phone</option>
+            <option value="SMS">SMS</option>
+            <option value="EMAIL">Email</option>
+            <option value="WIFI">WiFi</option>
+            <option value="MIME">MIME</option>
+            <option value="APPLICATION">Application</option>
+            <option value="FILE">File</option>
+            <option value="EXTERNAL">External</option>
+            <option value="AAR">Android App Record</option>
+          </select>
+        </label>
+
+        <label class="check">
+          <input id="lockTag" type="checkbox">
+          Lock after encoding
+        </label>
+
+        <label class="check">
+          <input id="fastMode" type="checkbox">
+          Fast mode
+        </label>
+
+        <label class="check">
+          <input id="verifyAfterWrite" type="checkbox" checked>
+          Verify after write
+        </label>
+
+        <label>
+          Input mode
+          <select id="inputMode">
+            <option value="lines">One tag per line</option>
+            <option value="csv">CSV rows</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="reader-panel" aria-label="Reader status">
+        <div>
+          <strong>Reader</strong>
+          <span id="readerStatus">Bridge not checked</span>
+        </div>
+        <div>
+          <strong>Current tag</strong>
+          <span id="currentTag">None</span>
+        </div>
+        <div>
+          <strong>Write index</strong>
+          <span id="writeIndex">1</span>
+        </div>
+        <div>
+          <strong>Programmed</strong>
+          <span id="programmedCount">0</span>
+        </div>
+        <div>
+          <strong>Elapsed</strong>
+          <span id="elapsedSeconds">0s</span>
+        </div>
+        <div>
+          <strong>Errors</strong>
+          <span id="errorCount">0</span>
+        </div>
+      </section>
+
+      <section class="operator-panel surface" aria-label="Current encoding status">
+        <div class="operator-main">
+          <span class="operator-label">Next Card</span>
+          <strong id="nextRow">Row 1</strong>
+          <span id="nextValue">https://example.local/asset-001</span>
+        </div>
+        <div class="operator-status">
+          <div>
+            <strong>Mode</strong>
+            <span id="modeSummary">Safe mode, verify on</span>
+          </div>
+          <div>
+            <strong>State</strong>
+            <span id="workflowState" class="state-pill state-waiting">Waiting</span>
+          </div>
+          <div>
+            <strong>Last UID</strong>
+            <span id="lastWrittenUid">None</span>
+          </div>
+          <div>
+            <strong>Rate</strong>
+            <span id="cardsPerMinute">0/min</span>
+          </div>
+          <div>
+            <strong>ETA</strong>
+            <span id="etaSummary">--</span>
+          </div>
+          <div>
+            <strong>Validation</strong>
+            <span id="validationSummary">Ready</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="progress-panel" aria-label="Programming progress">
+        <div>
+          <strong>File progress</strong>
+          <span id="progressSummary">No file loaded</span>
+        </div>
+        <div class="progress-actions">
+          <input id="progressUpload" type="file" accept=".json,application/json">
+          <select id="sessionSelect" aria-label="Saved sessions">
+            <option value="">Saved sessions</option>
+          </select>
+          <button id="loadSession" type="button">Load Session</button>
+          <button id="exportProgress" type="button">Export Progress</button>
+          <button id="importProgress" type="button">Import Progress</button>
+          <button id="clearProgress" type="button">Clear Saved Progress</button>
+        </div>
+      </section>
+
+      <section id="programmedTagPanel" class="programmed-panel" hidden aria-label="Programmed tag">
+        <div>
+          <strong>Programmed card detected</strong>
+          <span id="programmedTagSummary">This tag already contains data.</span>
+        </div>
+        <div class="programmed-actions">
+          <button id="eraseOnly" type="button">Erase</button>
+          <button id="eraseAndWrite" type="button">Erase + Write Current Row</button>
+        </div>
+      </section>
+
+      <section class="queue-panel surface" aria-label="Encoding queue">
+        <div class="queue-head">
+          <h2>Encoding Queue</h2>
+          <span id="queueSummary">0 pending</span>
+        </div>
+        <div class="queue-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Correlation ID</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th>Lock</th>
+                <th>Encoding</th>
+                <th>NFC Tag</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="queueBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tag-details" aria-label="Tag details">
+        <div>
+          <h2>Tag Contents</h2>
+          <pre id="tagDetails">Tap a tag and click Read Tag.</pre>
+        </div>
+        <div>
+          <h2>Session Log</h2>
+          <pre id="sessionLog">No events yet.</pre>
+        </div>
+      </section>
+
+      <section class="editor">
+        <div class="input-panel">
+          <div class="panel-head">
+            <h2>Input</h2>
+            <div class="input-actions">
+              <input id="csvUpload" type="file" accept=".csv,text/csv">
+              <button id="uploadCsv" type="button">Upload CSV</button>
+              <button id="loadSample" type="button">Load Sample</button>
+            </div>
+          </div>
+          <p id="inputHelp"></p>
+          <textarea id="source" spellcheck="false"></textarea>
+        </div>
+
+        <div class="preview-panel">
+          <div class="tabs" role="tablist" aria-label="Preview format">
+            <button class="tab active" data-format="csv" type="button">CSV</button>
+            <button class="tab" data-format="json" type="button">JSON</button>
+          </div>
+          <pre id="preview"></pre>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="qrcode.js"></script>
+  <script src="qrcode_UTF8.js"></script>
+  <script src="qr-tool.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

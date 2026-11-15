@@ -158,6 +158,41 @@ export async function claimOrderConfirmationEmail(orderId: string) {
   return data ? mapOrder(data) : null;
 }
 
+export async function claimOwnerOrderNotification(orderId: string) {
+  const claimedAt = new Date().toISOString();
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("checkout_orders")
+    .update({
+      owner_order_notification_sent_at: claimedAt
+    })
+    .eq("id", orderId)
+    .is("owner_order_notification_sent_at", null)
+    .select("id")
+    .maybeSingle<{ id: string }>();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? claimedAt : null;
+}
+
+export async function releaseOwnerOrderNotificationClaim(orderId: string, claimedAt: string) {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("checkout_orders")
+    .update({
+      owner_order_notification_sent_at: null
+    })
+    .eq("id", orderId)
+    .eq("owner_order_notification_sent_at", claimedAt);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function markCheckoutOrderExpired(stripeSessionId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase

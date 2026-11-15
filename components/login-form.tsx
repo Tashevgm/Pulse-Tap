@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { ArrowRight, Loader2, LogIn } from "lucide-react";
 
-export function LoginForm() {
+export function LoginForm({ next = "/dashboard" }: { next?: string }) {
   const [form, setForm] = useState({
     email: "",
     password: ""
@@ -34,7 +34,7 @@ export function LoginForm() {
         return;
       }
 
-      window.location.href = "/dashboard";
+      window.location.href = next;
     } catch {
       setError("Could not sign in.");
     } finally {

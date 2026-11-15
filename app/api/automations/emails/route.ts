@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { sendAmazonReviewRequestEmail, sendEmailVerificationReminderEmail } from "@/lib/email";
 import {
-  claimAmazonReviewRequestEmail,
   claimEmailVerificationReminder,
+  markAmazonReviewRequestEmailSent,
   readAmazonReviewRequestCandidates,
   readEmailVerificationReminderCandidates,
   resendSupabaseVerificationEmail
@@ -42,52 +42,75 @@ async function runEmailAutomations(request: Request) {
   const origin = getOrigin(request);
   const emailVerificationCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString();
   const reviewCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString();
-  const verificationCandidates = await readEmailVerificationReminderCandidates(emailVerificationCutoff);
-  const reviewCandidates = await readAmazonReviewRequestCandidates(reviewCutoff);
   let verificationRemindersSent = 0;
   let verificationRemindersSkipped = 0;
+  let verificationRemindersFailed = 0;
   let reviewRequestsSent = 0;
   let reviewRequestsSkipped = 0;
+  let reviewRequestsFailed = 0;
 
-  for (const candidate of verificationCandidates) {
-    const claimed = await claimEmailVerificationReminder(candidate.profileId);
+  // Run each automation independently so a failure in account verification
+  // reminders cannot prevent Amazon review reminders from being processed.
+  try {
+    const verificationCandidates = await readEmailVerificationReminderCandidates(emailVerificationCutoff);
 
-    if (!claimed) {
-      verificationRemindersSkipped += 1;
-      continue;
+    for (const candidate of verificationCandidates) {
+      try {
+        const claimed = await claimEmailVerificationReminder(candidate.profileId);
+
+        if (!claimed) {
+          verificationRemindersSkipped += 1;
+          continue;
+        }
+
+        const callbackUrl = new URL("/api/auth/callback", origin);
+        callbackUrl.searchParams.set("next", "/dashboard");
+        await resendSupabaseVerificationEmail(claimed.email, callbackUrl.toString());
+        await sendEmailVerificationReminderEmail({
+          to: claimed.email,
+          verifyUrl: new URL("/login", origin).toString()
+        });
+        verificationRemindersSent += 1;
+      } catch (error) {
+        verificationRemindersFailed += 1;
+        console.error("Email verification reminder failed.", error);
+      }
     }
-
-    const callbackUrl = new URL("/api/auth/callback", origin);
-    callbackUrl.searchParams.set("next", "/dashboard");
-    await resendSupabaseVerificationEmail(claimed.email, callbackUrl.toString());
-    await sendEmailVerificationReminderEmail({
-      to: claimed.email,
-      verifyUrl: new URL("/login", origin).toString()
-    });
-    verificationRemindersSent += 1;
+  } catch (error) {
+    verificationRemindersFailed += 1;
+    console.error("Could not load email verification reminder candidates.", error);
   }
 
-  for (const candidate of reviewCandidates) {
-    const claimed = await claimAmazonReviewRequestEmail(candidate);
+  try {
+    const reviewResult = await readAmazonReviewRequestCandidates(reviewCutoff);
+    reviewRequestsSkipped += reviewResult.skipped;
 
-    if (!claimed) {
-      reviewRequestsSkipped += 1;
-      continue;
+    for (const candidate of reviewResult.candidates) {
+      try {
+        await sendAmazonReviewRequestEmail({
+          to: candidate.email,
+          cardLabel: candidate.label
+        });
+        await markAmazonReviewRequestEmailSent(candidate);
+        reviewRequestsSent += 1;
+      } catch (error) {
+        reviewRequestsFailed += 1;
+        console.error("Amazon review request failed.", error);
+      }
     }
-
-    await sendAmazonReviewRequestEmail({
-      to: candidate.email,
-      cardLabel: candidate.label
-    });
-    reviewRequestsSent += 1;
+  } catch (error) {
+    reviewRequestsFailed += 1;
+    console.error("Could not load Amazon review request candidates.", error);
   }
 
   return NextResponse.json({
-    ok: true,
+    ok: verificationRemindersFailed === 0 && reviewRequestsFailed === 0,
     verificationRemindersSent,
     verificationRemindersSkipped,
+    verificationRemindersFailed,
     reviewRequestsSent,
-    reviewRequestsSkipped
+    reviewRequestsSkipped,
+    reviewRequestsFailed
   });
 }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { registerEmailUser } from "@/lib/user-store";
 import { hasSupabaseEnv, createSupabaseServerClient } from "@/lib/supabase/server";
 import { upsertProfileForAuthUser } from "@/lib/supabase/profile";
+import { safeInternalPath } from "@/lib/navigation";
 
 export async function POST(request: Request) {
   try {
@@ -11,12 +12,14 @@ export async function POST(request: Request) {
       email?: string;
       password?: string;
       companyName?: string;
+      next?: string;
     };
 
     const name = body.name?.trim() ?? "";
     const email = body.email?.trim() ?? "";
     const password = body.password ?? "";
     const companyName = body.companyName?.trim() ?? "";
+    const next = safeInternalPath(body.next);
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -51,7 +54,7 @@ export async function POST(request: Request) {
     if (hasSupabaseEnv() && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       const supabase = await createSupabaseServerClient();
       const emailRedirectTo = new URL("/api/auth/callback", requestUrl.origin);
-      emailRedirectTo.searchParams.set("next", "/dashboard");
+      emailRedirectTo.searchParams.set("next", next);
 
       const { data, error } = await supabase.auth.signUp({
         email,

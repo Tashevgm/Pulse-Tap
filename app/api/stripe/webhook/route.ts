@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createStripeClient } from "@/lib/stripe";
 import { sendOrderConfirmationEmail } from "@/lib/email";
-import { claimOrderConfirmationEmail, markCheckoutOrderCompleted, markCheckoutOrderExpired } from "@/lib/supabase/order-store";
+import { sendOwnerOrderNotifications } from "@/lib/order-notifications";
+import {
+  claimOrderConfirmationEmail,
+  claimOwnerOrderNotification,
+  markCheckoutOrderCompleted,
+  markCheckoutOrderExpired,
+  releaseOwnerOrderNotificationClaim
+} from "@/lib/supabase/order-store";
 
 export const runtime = "nodejs";
 
@@ -76,41 +83,90 @@ export async function POST(request: Request) {
       customerEmail: session.customer_details?.email ?? session.customer_email
     });
 
-    const customerEmail = session.customer_details?.email ?? session.customer_email ?? order?.customerEmail;
+    if (!order) {
+      throw new Error(`No local checkout order was found for Stripe session ${session.id}.`);
+    }
 
-    if (order && customerEmail && session.amount_total !== null) {
-      let claimedOrder;
+    const customerEmail = session.customer_details?.email ?? session.customer_email ?? order.customerEmail;
 
+    if (!customerEmail || session.amount_total === null) {
+      throw new Error(`Stripe session ${session.id} is missing the customer email or total.`);
+    }
+
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
+    const shippingName = session.customer_details?.name;
+    const shippingAddress = formatAddress(session.customer_details?.address);
+
+    // Guard the internal notification separately from the customer receipt so
+    // retries can recover a failed owner alert without sending duplicates.
+    let ownerNotificationClaimedAt: string | null = null;
+    let shouldSendOwnerNotification = true;
+
+    try {
+      ownerNotificationClaimedAt = await claimOwnerOrderNotification(order.id);
+      shouldSendOwnerNotification = Boolean(ownerNotificationClaimedAt);
+    } catch (claimError) {
+      if (!isMissingColumnError(claimError)) {
+        throw claimError;
+      }
+
+      console.warn("owner_order_notification_sent_at is missing. Sending without duplicate guard until migration is applied.");
+    }
+
+    if (shouldSendOwnerNotification) {
       try {
-        claimedOrder = await claimOrderConfirmationEmail(order.id);
-      } catch (claimError) {
-        if (!isMissingColumnError(claimError)) {
-          throw claimError;
+        await sendOwnerOrderNotifications({
+          orderId: order.id,
+          productName: order.productName,
+          customerEmail,
+          amountTotal: session.amount_total,
+          shippingAmount: session.shipping_cost?.amount_total ?? 0,
+          currency: session.currency ?? order.currency,
+          shippingName,
+          shippingAddress
+        });
+      } catch (notificationError) {
+        if (ownerNotificationClaimedAt) {
+          try {
+            await releaseOwnerOrderNotificationClaim(order.id, ownerNotificationClaimedAt);
+          } catch (releaseError) {
+            console.error("Could not release the failed owner notification claim.", releaseError);
+          }
         }
 
-        console.warn("order_confirmation_email_sent_at is missing. Sending without duplicate guard until migration is applied.");
-        claimedOrder = order;
+        throw notificationError;
+      }
+    }
+
+    let claimedOrder;
+
+    try {
+      claimedOrder = await claimOrderConfirmationEmail(order.id);
+    } catch (claimError) {
+      if (!isMissingColumnError(claimError)) {
+        throw claimError;
       }
 
-      if (!claimedOrder) {
-        return NextResponse.json({
-          ok: true
-        });
-      }
+      console.warn("order_confirmation_email_sent_at is missing. Sending without duplicate guard until migration is applied.");
+      claimedOrder = order;
+    }
 
-      const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
-
-      await sendOrderConfirmationEmail({
-        to: customerEmail,
-        productName: claimedOrder.productName,
-        amountTotal: session.amount_total,
-        shippingAmount: session.shipping_cost?.amount_total ?? 0,
-        currency: session.currency ?? claimedOrder.currency,
-        shippingName: session.customer_details?.name,
-        shippingAddress: formatAddress(session.customer_details?.address),
-        dashboardUrl: `${origin}/dashboard`
+    if (!claimedOrder) {
+      return NextResponse.json({
+        ok: true
       });
     }
+
+    await sendOrderConfirmationEmail({
+      to: customerEmail,
+      productName: claimedOrder.productName,
+      amountTotal: session.amount_total,
+      shippingAmount: session.shipping_cost?.amount_total ?? 0,
+      currency: session.currency ?? claimedOrder.currency,
+      shippingName,
+      shippingAddress,
+      dashboardUrl: `${origin}/dashboard`
+    });
   }
 
   if (event.type === "checkout.session.expired") {

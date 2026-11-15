@@ -8,7 +8,8 @@ import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
 
-const deliveryAmount = 299;
+const deliveryAmount = 480;
+const freeShippingThreshold = 2000;
 
 type CheckoutSessionResult = {
   id: string;
@@ -33,15 +34,22 @@ async function createCheckoutSessionWithRest({
   customerEmail,
   orderId,
   lines,
-  productId
+  productId,
+  shippingAmount,
+  promoCode
 }: {
   origin: string;
   customerEmail: string;
   orderId: string;
   lines: CheckoutLine[];
   productId: string;
+  shippingAmount: number;
+  promoCode?: string;
 }): Promise<CheckoutSessionResult> {
   const params = new URLSearchParams();
+  const shippingRateId = shippingAmount === 0
+    ? process.env.STRIPE_FREE_SHIPPING_RATE_ID
+    : process.env.STRIPE_ROYALMAIL_SHIPPING_RATE_ID;
   params.set("mode", "payment");
   params.set("success_url", `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
   params.set("cancel_url", `${origin}/checkout/cancel`);
@@ -49,14 +57,15 @@ async function createCheckoutSessionWithRest({
   params.set("billing_address_collection", "auto");
   params.set("shipping_address_collection[allowed_countries][0]", "GB");
   params.set("shipping_address_collection[allowed_countries][1]", "IE");
-  params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
-  params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(deliveryAmount));
-  params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "gbp");
-  params.set("shipping_options[0][shipping_rate_data][display_name]", "Royal Mail 24 hour delivery");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]", "business_day");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]", "1");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]", "business_day");
-  params.set("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]", "1");
+  if (shippingRateId) {
+    params.set("shipping_options[0][shipping_rate]", shippingRateId);
+  } else {
+    params.set("shipping_options[0][shipping_rate_data][type]", "fixed_amount");
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][amount]", String(shippingAmount));
+    params.set("shipping_options[0][shipping_rate_data][fixed_amount][currency]", "gbp");
+    params.set("shipping_options[0][shipping_rate_data][display_name]", shippingAmount === 0 ? "Free Shipping" : "Royal Mail 24 Tracked");
+  }
+  params.set("allow_promotion_codes", "true");
   lines.forEach((line, index) => {
     params.set(`line_items[${index}][quantity]`, String(line.quantity));
     params.set(`line_items[${index}][price_data][currency]`, "gbp");
@@ -99,6 +108,7 @@ export async function POST(request: Request) {
         quantity?: number;
       }>;
       customerEmail?: string;
+      promoCode?: string;
     };
     const requestedItems =
       body.items && body.items.length > 0
@@ -135,6 +145,7 @@ export async function POST(request: Request) {
     }
 
     const subtotal = lines.reduce((sum, line) => sum + line.shopProduct.unitAmount * line.quantity, 0);
+    const shippingAmount = subtotal >= freeShippingThreshold ? 0 : deliveryAmount;
     const productName =
       lines.length === 1
         ? lines[0].title
@@ -162,7 +173,7 @@ export async function POST(request: Request) {
       productName,
       customerEmail,
       profileId: profile?.id,
-      amount: subtotal + deliveryAmount,
+      amount: subtotal + shippingAmount,
       currency: "gbp"
     });
     let session: CheckoutSessionResult;
@@ -180,24 +191,13 @@ export async function POST(request: Request) {
         },
         shipping_options: [
           {
-            shipping_rate_data: {
-              type: "fixed_amount",
-              fixed_amount: {
-                amount: deliveryAmount,
-                currency: "gbp"
-              },
-              display_name: "Royal Mail 24 hour delivery",
-              delivery_estimate: {
-                minimum: {
-                  unit: "business_day",
-                  value: 1
-                },
-                maximum: {
-                  unit: "business_day",
-                  value: 1
-                }
-              }
-            }
+            ...(shippingAmount === 0
+              ? process.env.STRIPE_FREE_SHIPPING_RATE_ID
+                ? { shipping_rate: process.env.STRIPE_FREE_SHIPPING_RATE_ID }
+                : { shipping_rate_data: { type: "fixed_amount" as const, fixed_amount: { amount: 0, currency: "gbp" }, display_name: "Free Shipping" } }
+              : process.env.STRIPE_ROYALMAIL_SHIPPING_RATE_ID
+                ? { shipping_rate: process.env.STRIPE_ROYALMAIL_SHIPPING_RATE_ID }
+                : { shipping_rate_data: { type: "fixed_amount" as const, fixed_amount: { amount: deliveryAmount, currency: "gbp" }, display_name: "Royal Mail 24 Tracked" } })
           }
         ],
         line_items: lines.map((line) => ({
@@ -214,6 +214,7 @@ export async function POST(request: Request) {
             }
           }
         })),
+        allow_promotion_codes: true,
         metadata: {
           pulseTapProductId: productId,
           pulseTapOrderId: order.id
@@ -229,7 +230,9 @@ export async function POST(request: Request) {
         customerEmail,
         orderId: order.id,
         productId,
-        lines
+        lines,
+        shippingAmount,
+        promoCode: body.promoCode
       });
     }
 

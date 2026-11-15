@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Activity, ArrowRight, UserRound } from "lucide-react";
+import { Activity, ArrowRight, QrCode, UserRound } from "lucide-react";
 import { cookies } from "next/headers";
 import { getCurrentProfile } from "@/lib/user-repository";
 
 const nav = [
   { href: "/shop", label: "Shop" },
+  { href: "/tools", label: "Tools" },
   { href: "/dashboard", label: "Profile" },
   { href: "/support", label: "Support" }
 ];
@@ -15,7 +16,8 @@ export async function Header() {
   const isSignedIn = Boolean(profile?.isAuthenticated);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/78 backdrop-blur-xl">
+    <>
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/95 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-6 lg:px-8">
         <Link href="/" className="focus-ring flex min-w-0 items-center gap-2 rounded-full">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-ink">
@@ -33,6 +35,14 @@ export async function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/tools"
+            aria-label="Open PulseTap tools"
+            title="Tools"
+            className="focus-ring inline-grid h-9 w-9 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:bg-white/14 md:hidden"
+          >
+            <QrCode className="h-4 w-4" />
+          </Link>
           {isSignedIn ? (
             <Link
               href="/dashboard"
@@ -68,6 +78,16 @@ export async function Header() {
           </Link>
         </div>
       </div>
-    </header>
+      </header>
+      <div className="relative z-10 border-b border-pulse/25 bg-ink px-4 py-2.5 text-center text-sm text-white sm:bg-pulse/10">
+        <p>
+          <span className="font-semibold text-pulse">10% off your first order</span>
+          <span className="mx-2 text-white/50">·</span>
+          Use code <span className="rounded-md border border-white/20 bg-black/20 px-2 py-0.5 font-mono font-semibold tracking-wide">WELCOME10</span>
+          <span className="mx-2 text-white/50">·</span>
+          <span className="font-semibold">Free shipping on orders over £20</span>
+        </p>
+      </div>
+    </>
   );
 }

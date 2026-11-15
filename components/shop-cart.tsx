@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowRight, Loader2, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 type ShopItem = {
   id: string;
@@ -28,7 +28,8 @@ type ShopCartProps = {
 };
 
 const storageKey = "pulsetap_cart";
-const deliveryAmount = 299;
+const deliveryAmount = 480;
+const freeShippingThreshold = 2000;
 
 function formatPrice(amount: number) {
   return new Intl.NumberFormat("en-GB", {
@@ -57,9 +58,11 @@ function saveCart(cart: CartLine[]) {
 export function ShopCart({ items }: ShopCartProps) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [email, setEmail] = useState("");
+  const [promoCode, setPromoCode] = useState("");
   const [needsEmail, setNeedsEmail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   useEffect(() => {
     setCart(readCart());
@@ -78,7 +81,8 @@ export function ShopCart({ items }: ShopCartProps) {
     .filter(Boolean) as Array<CartLine & { item: ShopItem }>;
   const itemCount = cartItems.reduce((sum, line) => sum + line.quantity, 0);
   const subtotal = cartItems.reduce((sum, line) => sum + line.item.unitAmount * line.quantity, 0);
-  const total = subtotal > 0 ? subtotal + deliveryAmount : 0;
+  const shippingAmount = subtotal >= freeShippingThreshold ? 0 : deliveryAmount;
+  const total = subtotal > 0 ? subtotal + shippingAmount : 0;
 
   function updateQuantity(productId: string, quantity: number) {
     setCart((current) => {
@@ -120,7 +124,8 @@ export function ShopCart({ items }: ShopCartProps) {
             productId: line.productId,
             quantity: line.quantity
           })),
-          customerEmail: email
+          customerEmail: email,
+          promoCode
         })
       });
       const payload = (await response.json()) as {
@@ -145,7 +150,7 @@ export function ShopCart({ items }: ShopCartProps) {
   }
 
   return (
-    <section id="shop-grid" className="px-5 py-14 md:py-16">
+    <section id="shop-grid" className="px-5 py-14 pb-28 md:py-16 md:pb-16">
       <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1fr_380px]">
         <div className="grid gap-5 md:grid-cols-2">
           {items.map((item) => {
@@ -224,8 +229,22 @@ export function ShopCart({ items }: ShopCartProps) {
           })}
         </div>
 
-        <aside className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.045] p-5 xl:sticky xl:top-24">
-          <div className="flex items-center justify-between gap-4">
+        {mobileCartOpen ? (
+          <button
+            type="button"
+            aria-label="Close cart"
+            onClick={() => setMobileCartOpen(false)}
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm xl:hidden"
+          />
+        ) : null}
+
+        <aside
+          aria-label="Your shopping cart"
+          aria-modal={mobileCartOpen ? true : undefined}
+          role={mobileCartOpen ? "dialog" : undefined}
+          className={`${mobileCartOpen ? "fixed inset-x-0 bottom-0 z-50 block max-h-[88dvh] overflow-y-auto rounded-b-none pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(0,0,0,0.45)]" : "hidden xl:block"} h-fit rounded-[2rem] border border-white/10 bg-[#11131b] p-5 xl:sticky xl:top-24 xl:max-h-none xl:overflow-visible xl:rounded-[2rem] xl:bg-white/[0.045] xl:pb-5 xl:shadow-none`}
+        >
+          <div className="flex items-center justify-between gap-4 pr-12 xl:pr-0">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-pulse">Cart</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">Your order</h2>
@@ -234,6 +253,15 @@ export function ShopCart({ items }: ShopCartProps) {
               <ShoppingBag className="h-5 w-5" />
             </span>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileCartOpen(false)}
+            className="focus-ring absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#11131b] text-white/70 xl:hidden"
+            aria-label="Close cart"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
           {cartItems.length === 0 ? (
             <p className="mt-5 rounded-3xl border border-white/10 bg-black/18 p-4 text-sm leading-6 text-white/58">
@@ -264,6 +292,18 @@ export function ShopCart({ items }: ShopCartProps) {
             </div>
           )}
 
+          <label className="mt-4 block">
+            <span className="text-sm font-medium text-white/82">Promo code</span>
+            <input
+              value={promoCode}
+              onChange={(event) => setPromoCode(event.target.value)}
+              className="focus-ring mt-2 w-full rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-base text-white placeholder:text-white/32"
+              placeholder="Enter promo code"
+              autoComplete="off"
+            />
+            <span className="mt-2 block text-xs text-white/50">Free UK and Ireland delivery on orders of £20 or more.</span>
+          </label>
+
           <div className="mt-5 space-y-3 rounded-3xl border border-white/10 bg-black/18 p-4 text-sm">
             <div className="flex justify-between text-white/60">
               <span>Items</span>
@@ -274,8 +314,8 @@ export function ShopCart({ items }: ShopCartProps) {
               <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-white/60">
-              <span>Royal Mail 24 hour delivery</span>
-              <span>{subtotal > 0 ? formatPrice(deliveryAmount) : formatPrice(0)}</span>
+              <span>{shippingAmount === 0 ? "Free Shipping" : "Royal Mail 24 Tracked"}</span>
+              <span>{shippingAmount === 0 && subtotal > 0 ? "Free" : formatPrice(shippingAmount)}</span>
             </div>
             <div className="border-t border-white/10 pt-3">
               <div className="flex justify-between text-base font-semibold text-white">
@@ -313,6 +353,30 @@ export function ShopCart({ items }: ShopCartProps) {
           </button>
         </aside>
       </div>
+
+      {!mobileCartOpen ? (
+        <button
+          type="button"
+          onClick={() => setMobileCartOpen(true)}
+          className="focus-ring fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex items-center justify-between rounded-full border border-white/15 bg-ink px-5 py-3.5 text-left text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)] xl:hidden"
+          aria-label={`Open cart with ${itemCount} items, total ${formatPrice(total)}`}
+        >
+          <span className="flex items-center gap-3">
+            <span className="relative grid h-10 w-10 place-items-center rounded-full bg-white text-ink">
+              <ShoppingBag className="h-5 w-5" />
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-pulse px-1 text-[10px] font-bold text-ink">{itemCount}</span>
+            </span>
+            <span>
+              <span className="block text-xs text-white/60">{itemCount === 1 ? "1 item" : `${itemCount} items`}</span>
+              <span className="block text-sm font-semibold">View cart</span>
+            </span>
+          </span>
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            {formatPrice(total)}
+            <ArrowDown className="h-4 w-4" />
+          </span>
+        </button>
+      ) : null}
     </section>
   );
 }

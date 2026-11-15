@@ -34,6 +34,7 @@ type CardCandidateRow = {
 
 type ProfileEmailRow = {
   id: string;
+  auth_user_id: string | null;
   email: string;
 };
 
@@ -154,8 +155,8 @@ async function readCardCandidates({
     .select("id,label,owner_profile_id,taps,activated_at")
     .not("owner_profile_id", "is", null)
     .is("amazon_review_request_email_sent_at", null)
-    .gte("taps", 5)
-    .lte("activated_at", cutoffIso)
+    .gt("taps", 5)
+    .lt("activated_at", cutoffIso)
     .order("activated_at", { ascending: true })
     .limit(50);
 
@@ -166,12 +167,12 @@ async function readCardCandidates({
   const rows = data as CardCandidateRow[];
 
   if (rows.length === 0) {
-    return [];
+    return { candidates: [], skipped: 0 };
   }
 
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id,email")
+    .select("id,auth_user_id,email")
     .in(
       "id",
       rows.map((row) => row.owner_profile_id)
@@ -181,13 +182,36 @@ async function readCardCandidates({
     throw profilesError;
   }
 
-  const emailByProfileId = new Map((profiles as ProfileEmailRow[]).map((profile) => [profile.id, profile.email]));
+  const profileById = new Map((profiles as ProfileEmailRow[]).map((profile) => [profile.id, profile]));
   const candidates: ReviewRequestCandidate[] = [];
+  let skipped = 0;
 
   for (const row of rows) {
-    const email = emailByProfileId.get(row.owner_profile_id);
+    const profile = profileById.get(row.owner_profile_id);
 
-    if (!email) {
+    if (!profile?.auth_user_id) {
+      skipped += 1;
+      continue;
+    }
+
+    const { data, error: authUserError } = await supabase.auth.admin.getUserById(profile.auth_user_id);
+
+    if (authUserError) {
+      // Cards can outlive the Auth user they were linked to. Treat that stale
+      // owner as ineligible and keep processing the rest of the batch.
+      if (authUserError.code === "user_not_found" || authUserError.status === 404) {
+        skipped += 1;
+        continue;
+      }
+
+      throw authUserError;
+    }
+
+    const authUser = data.user;
+    const isEmailVerified = Boolean(authUser?.email && (authUser.email_confirmed_at || authUser.confirmed_at));
+
+    if (!authUser?.email || !isEmailVerified) {
+      skipped += 1;
       continue;
     }
 
@@ -197,13 +221,13 @@ async function readCardCandidates({
       cardId: row.id,
       label: row.label,
       ownerProfileId: row.owner_profile_id,
-      email,
+      email: authUser.email,
       taps: row.taps,
       activatedAt: row.activated_at
     });
   }
 
-  return candidates;
+  return { candidates, skipped };
 }
 
 export async function readAmazonReviewRequestCandidates(cutoffIso: string) {
@@ -214,7 +238,7 @@ export async function readAmazonReviewRequestCandidates(cutoffIso: string) {
   });
 }
 
-export async function claimAmazonReviewRequestEmail(candidate: ReviewRequestCandidate) {
+export async function markAmazonReviewRequestEmailSent(candidate: ReviewRequestCandidate) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from(candidate.table)

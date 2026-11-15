@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeInternalPath } from "@/lib/navigation";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const supabase = await createSupabaseServerClient();
-  const requestedNext = requestUrl.searchParams.get("next") ?? "/dashboard";
-  const next = requestedNext.startsWith("/") ? requestedNext : "/dashboard";
+  const next = safeInternalPath(requestUrl.searchParams.get("next"));
   const redirectTo = new URL("/api/auth/callback", requestUrl.origin);
   redirectTo.searchParams.set("next", next);
 

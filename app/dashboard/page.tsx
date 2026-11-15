@@ -6,6 +6,7 @@ import { CardAnalytics } from "@/components/card-analytics";
 import { ProductManager } from "@/components/product-manager";
 import { readCardsForUser, readTapEventsForCards } from "@/lib/card-repository";
 import { getCurrentProfile } from "@/lib/user-repository";
+import { listDynamicQrCodes } from "@/lib/dynamic-qr";
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -23,6 +24,16 @@ export default async function DashboardPage() {
   const b2bCards = cards.filter((card) => card.database === "b2b");
   const activeProducts = cards.filter((card) => card.activated).length;
   const totalTaps = cards.reduce((sum, card) => sum + card.taps, 0);
+  let qrCodes: Awaited<ReturnType<typeof listDynamicQrCodes>> = [];
+  let qrUnavailable = false;
+  if (profile?.isAuthenticated) {
+    try {
+      qrCodes = await listDynamicQrCodes(profile.id);
+    } catch (error) {
+      qrUnavailable = true;
+      console.warn("Dashboard dynamic QR codes unavailable.", error);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-ink">
@@ -96,6 +107,34 @@ export default async function DashboardPage() {
               PulseTap products. Open the verification email we sent, then log in with your email and password.
             </p>
           </div>
+        </section>
+      ) : null}
+
+      {profile?.isAuthenticated ? (
+        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" aria-labelledby="account-qr-heading">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 id="account-qr-heading" className="text-2xl font-semibold">Your dynamic QR codes</h2>
+              <p className="mt-2 text-sm text-white/58">Manage saved destinations, view scan counts and download your QR codes.</p>
+            </div>
+            <Link href="/tools/qr?mode=dynamic" className="focus-ring rounded-full bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-pulse">Create QR code</Link>
+          </div>
+          {qrUnavailable ? (
+            <p role="status" className="mt-5 text-sm text-white/62">We couldn’t load your QR codes. Refresh the page to try again.</p>
+          ) : qrCodes.length === 0 ? (
+            <p className="mt-5 rounded-2xl border border-white/10 p-5 text-sm text-white/62">You haven’t created any dynamic QR codes in this account yet.</p>
+          ) : (
+            <ul className="mt-5 grid gap-4 md:grid-cols-2">
+              {qrCodes.map((code) => (
+                <li key={code.id} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] p-5">
+                  <h3 className="break-words text-lg font-semibold">{code.name}</h3>
+                  <p className="mt-2 break-all text-sm text-white/58">{code.destinationUrl}</p>
+                  <p className="mt-3 text-sm text-pulse">{code.scans} scans</p>
+                  <Link href={`/tools/qr?mode=dynamic&code=${encodeURIComponent(code.id)}`} className="focus-ring mt-4 inline-flex items-center text-sm font-semibold text-white hover:text-pulse">Edit or download<ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : null}
 
