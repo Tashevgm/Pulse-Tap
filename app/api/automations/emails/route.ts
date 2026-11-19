@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { runAbandonedCheckoutAutomation } from "@/lib/abandoned-checkout-automation";
-import { sendAmazonReviewRequestEmail, sendEmailVerificationReminderEmail } from "@/lib/email";
+import { sendEmailVerificationReminderEmail } from "@/lib/email";
 import {
   claimEmailVerificationReminder,
-  markAmazonReviewRequestEmailSent,
-  readAmazonReviewRequestCandidates,
   readEmailVerificationReminderCandidates,
+  releaseEmailVerificationReminderClaim,
   resendSupabaseVerificationEmail
 } from "@/lib/supabase/email-automations";
 
@@ -42,24 +41,20 @@ async function runEmailAutomations(request: Request) {
 
   const origin = getOrigin(request);
   const emailVerificationCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString();
-  const reviewCutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString();
   let verificationRemindersSent = 0;
   let verificationRemindersSkipped = 0;
   let verificationRemindersFailed = 0;
-  let reviewRequestsSent = 0;
-  let reviewRequestsSkipped = 0;
-  let reviewRequestsFailed = 0;
   let abandonedCheckoutEmailsSent = 0;
   let abandonedCheckoutEmailsFailed = 0;
 
-  // Run each automation independently so a failure in account verification
-  // reminders cannot prevent Amazon review reminders from being processed.
+  // Run each automation independently.
   try {
     const verificationCandidates = await readEmailVerificationReminderCandidates(emailVerificationCutoff);
 
     for (const candidate of verificationCandidates) {
+      let claimed: Awaited<ReturnType<typeof claimEmailVerificationReminder>> = null;
       try {
-        const claimed = await claimEmailVerificationReminder(candidate.profileId);
+        claimed = await claimEmailVerificationReminder(candidate.profileId);
 
         if (!claimed) {
           verificationRemindersSkipped += 1;
@@ -75,6 +70,13 @@ async function runEmailAutomations(request: Request) {
         });
         verificationRemindersSent += 1;
       } catch (error) {
+        if (claimed) {
+          try {
+            await releaseEmailVerificationReminderClaim(claimed.profileId, claimed.claimedAt);
+          } catch (releaseError) {
+            console.error("Could not release verification reminder claim.", releaseError);
+          }
+        }
         verificationRemindersFailed += 1;
         console.error("Email verification reminder failed.", error);
       }
@@ -84,27 +86,7 @@ async function runEmailAutomations(request: Request) {
     console.error("Could not load email verification reminder candidates.", error);
   }
 
-  try {
-    const reviewResult = await readAmazonReviewRequestCandidates(reviewCutoff);
-    reviewRequestsSkipped += reviewResult.skipped;
-
-    for (const candidate of reviewResult.candidates) {
-      try {
-        await sendAmazonReviewRequestEmail({
-          to: candidate.email,
-          cardLabel: candidate.label
-        });
-        await markAmazonReviewRequestEmailSent(candidate);
-        reviewRequestsSent += 1;
-      } catch (error) {
-        reviewRequestsFailed += 1;
-        console.error("Amazon review request failed.", error);
-      }
-    }
-  } catch (error) {
-    reviewRequestsFailed += 1;
-    console.error("Could not load Amazon review request candidates.", error);
-  }
+  // Review emails are sent individually after a card tap, not by this daily job.
 
   // Hobby plans allow only one daily cron schedule, so run abandoned checkout
   // reminders in this same daily job rather than scheduling a second cron.
@@ -117,20 +99,16 @@ async function runEmailAutomations(request: Request) {
     console.error("Could not run abandoned checkout email automation.", error);
   }
 
+  const ok = verificationRemindersFailed === 0 && abandonedCheckoutEmailsFailed === 0;
+
   return NextResponse.json({
-    ok:
-      verificationRemindersFailed === 0 &&
-      reviewRequestsFailed === 0 &&
-      abandonedCheckoutEmailsFailed === 0,
+    ok,
     verificationRemindersSent,
     verificationRemindersSkipped,
     verificationRemindersFailed,
-    reviewRequestsSent,
-    reviewRequestsSkipped,
-    reviewRequestsFailed,
     abandonedCheckoutEmailsSent,
     abandonedCheckoutEmailsFailed
-  });
+  }, { status: ok ? 200 : 500 });
 }
 
 export async function GET(request: Request) {

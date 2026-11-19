@@ -101,11 +101,12 @@ export async function readEmailVerificationReminderCandidates(cutoffIso: string)
 }
 
 export async function claimEmailVerificationReminder(profileId: string) {
+  const claimedAt = new Date().toISOString();
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("profiles")
     .update({
-      email_verification_reminder_sent_at: new Date().toISOString()
+      email_verification_reminder_sent_at: claimedAt
     })
     .eq("id", profileId)
     .is("email_verification_reminder_sent_at", null)
@@ -120,9 +121,19 @@ export async function claimEmailVerificationReminder(profileId: string) {
     ? {
         profileId: data.id,
         authUserId: data.auth_user_id,
-        email: data.email
+        email: data.email,
+        claimedAt: claimedAt
       }
     : null;
+}
+
+export async function releaseEmailVerificationReminderClaim(profileId: string, claimedAt: string) {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("profiles")
+    .update({ email_verification_reminder_sent_at: null })
+    .eq("id", profileId)
+    .eq("email_verification_reminder_sent_at", claimedAt);
+  if (error) throw error;
 }
 
 export async function resendSupabaseVerificationEmail(email: string, redirectTo: string) {
@@ -136,7 +147,7 @@ export async function resendSupabaseVerificationEmail(email: string, redirectTo:
   });
 
   if (error) {
-    console.warn(`Could not resend Supabase verification email to ${email}.`, error);
+    throw error;
   }
 }
 

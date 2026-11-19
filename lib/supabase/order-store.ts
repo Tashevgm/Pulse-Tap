@@ -158,6 +158,15 @@ export async function claimOrderConfirmationEmail(orderId: string) {
   return data ? mapOrder(data) : null;
 }
 
+export async function releaseOrderConfirmationEmailClaim(orderId: string, claimedAt: string) {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("checkout_orders")
+    .update({ order_confirmation_email_sent_at: null })
+    .eq("id", orderId)
+    .eq("order_confirmation_email_sent_at", claimedAt);
+  if (error) throw error;
+}
+
 export async function claimOwnerOrderNotification(orderId: string) {
   const claimedAt = new Date().toISOString();
   const supabase = createSupabaseAdminClient();

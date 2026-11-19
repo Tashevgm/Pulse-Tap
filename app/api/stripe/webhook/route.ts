@@ -8,6 +8,7 @@ import {
   claimOwnerOrderNotification,
   markCheckoutOrderCompleted,
   markCheckoutOrderExpired,
+  releaseOrderConfirmationEmailClaim,
   releaseOwnerOrderNotificationClaim
 } from "@/lib/supabase/order-store";
 
@@ -157,16 +158,27 @@ export async function POST(request: Request) {
       });
     }
 
-    await sendOrderConfirmationEmail({
-      to: customerEmail,
-      productName: claimedOrder.productName,
-      amountTotal: session.amount_total,
-      shippingAmount: session.shipping_cost?.amount_total ?? 0,
-      currency: session.currency ?? claimedOrder.currency,
-      shippingName,
-      shippingAddress,
-      dashboardUrl: `${origin}/dashboard`
-    });
+    try {
+      await sendOrderConfirmationEmail({
+        to: customerEmail,
+        productName: claimedOrder.productName,
+        amountTotal: session.amount_total,
+        shippingAmount: session.shipping_cost?.amount_total ?? 0,
+        currency: session.currency ?? claimedOrder.currency,
+        shippingName,
+        shippingAddress,
+        dashboardUrl: `${origin}/dashboard`
+      });
+    } catch (emailError) {
+      if (claimedOrder.orderConfirmationEmailSentAt) {
+        try {
+          await releaseOrderConfirmationEmailClaim(order.id, claimedOrder.orderConfirmationEmailSentAt);
+        } catch (releaseError) {
+          console.error("Could not release order confirmation claim.", releaseError);
+        }
+      }
+      throw emailError;
+    }
   }
 
   if (event.type === "checkout.session.expired") {

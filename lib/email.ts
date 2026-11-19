@@ -78,14 +78,14 @@ function shell({ preheader, content }: { preheader: string; content: string }) {
   </body></html>`;
 }
 
-async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+async function sendEmail({ to, subject, html, idempotencyKey }: { to: string; subject: string; html: string; idempotencyKey?: string }) {
   const resend = getResendClient();
 
   if (!resend) {
     throw new Error("RESEND_API_KEY is missing; email was not sent.");
   }
 
-  const result = await resend.emails.send({ from, to, subject, html });
+  const result = await resend.emails.send({ from, to, subject, html }, idempotencyKey ? { idempotencyKey } : undefined);
 
   if (result.error) {
     throw new Error(`Resend could not send email: ${result.error.message}`);
@@ -306,14 +306,17 @@ export async function sendOwnerOrderNotificationEmail({
 
 export async function sendAmazonReviewRequestEmail({
   to,
-  cardLabel
+  cardLabel,
+  idempotencyKey
 }: {
   to: string;
   cardLabel: string;
+  idempotencyKey?: string;
 }) {
   return sendEmail({
     to,
     subject: "How is your PulseTap card working for you?",
+    idempotencyKey,
     html: shell({
       preheader: "Your PulseTap card is active. We would value your honest feedback.",
       content: `${titleBlock("A QUICK CHECK-IN", "How is your card working for you?", `Your <strong style="color:#14212b;">${escapeHtml(cardLabel)}</strong> is active and has started receiving taps.`)}
